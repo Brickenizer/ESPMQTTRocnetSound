@@ -322,7 +322,11 @@ void setup() {
   // Serial.println("------------------------ Starting main loop ---------------");
   FlashMessage(" ----------Entering Main Loop----------  ", 5, 150, 150);
      PrintTime("Start");
-   CV[47]=131; //Becoming obsolete, I am not using this feature now, but there are some message shows that still use this to show MQQT messages,Serial messages and the D4 lightflashing at loop frequency (approximates to "On" when working!...
+   CV[47]=131; 
+   //Becoming obsolete, I am not using this feature now, but there are some message shows 
+   // that still use this to show MQQT messages,Serial messages and the D4 lightflashing 
+   // at loop frequency (approximates to "On" when working!...
+   
    for (int i = 0 ; i <= 8; i++) { // set servo stuff to a default.
     SDelay[i] = 1000;
     SDemand[i] = 90;
@@ -469,6 +473,3 @@ void loop() {
 
   //delay(5);   // slow this down for tests
 } //void loop
-
-
-
