@@ -1174,7 +1174,12 @@ void ROC_CS() { //group 1
       }
       break;
     case 8:  {
-        //Serial.print(" debug**Group 1, Code 8: ROC_Data[1]<");Serial.print(ROC_Data[1]);Serial.print(" >  ROC_Data[2]<");Serial.print(ROC_Data[2]); Serial.print(">  equates to address of:"); Serial.println ((ROC_Data[2] + (ROC_Data[1] * 256)));
+        Serial.print(" debug**Group 1, Code 8: ROC_Data[1]<");
+        Serial.print(ROC_Data[1]);
+        Serial.print(" >  ROC_Data[2]<");
+        Serial.print(ROC_Data[2]);
+        Serial.print(">  equates to address of:");
+        Serial.println ((ROC_Data[2] + (ROC_Data[1] * 256)));
         if (((ROC_Data[2] + (ROC_Data[1] * 256)) == MyLocoAddr) || ((ROC_Data[2] == 0) && (ROC_Data[1] == 0))) {
           if ((ROC_Data[2] + (ROC_Data[1] * 256)) == MyLocoAddr) {  
             Serial.print(" Group 1, Code 8: CV change for this Loco ");
@@ -1197,7 +1202,9 @@ void ROC_CS() { //group 1
               }
             }
             else {   // Setting, but not setting defaults ONLY set if address is explicitly for me
-              if ((ROC_Data[2] + (ROC_Data[1] * 256)) == MyLocoAddr) { //only set if address is explicitly for me
+              if ((ROC_Data[2] + (ROC_Data[1] * 256)) == MyLocoAddr) {
+                //only set if address is explicitly for me
+              
             // mqtt debug message
                    DebugSprintfMsgSend( sprintf ( DebugMsg, "Set CV[%d]=%d",CVNum,ROC_Data[5]));
               CV[CVNum] = ROC_Data[5]; //set the new data
@@ -1259,19 +1266,29 @@ extern void BeginPlay(int Channel,const char *wavfilename, uint8_t Volume);
 extern void SetMotorSpeed(uint8_t SpeedDemand,uint8_t dirf);
 
 void ROC_MOBILE() { // group 2
+  Serial.print("ROC_code=");
+  Serial.println(ROC_code);
   switch (ROC_code) {
     case 0:  {}    // NOP
       break;
     case 1:  {}    // setup
       break;
     case 2:  {
-        //      Serial.print("Local:");  Serial.print(CV[1]); Serial.print(" MSG for:");  Serial.print(ROC_recipient);
+              Serial.print("Local:");
+              Serial.print(CV[1]);
+              Serial.print(" MSG for:");
+              Serial.print(ROC_recipient);
+              Serial.print(" A am locoAddr=");
+              Serial.println(MyLocoAddr);
+              
         // set Velocity, direction , lights
         Message_Decoded = true; // we understand these even if they are not for us
 #ifdef _LOCO_SERVO_Driven_Port
-        if (ROC_recipient == MyLocoAddr) { //data for me, do it!
-//          Serial.print (" Set Speed ");
-//          Serial.print( ROC_Data[1]);
+        if (ROC_recipient == MyLocoAddr) {
+          //data for me, do it!
+        
+          Serial.print (" Set Speed ");
+          Serial.print( ROC_Data[1]);
        //   Speed_demand = ROC_Data[1];  set direction etc in DIRF 
           bitWrite(DIRF, 5, ROC_Data[2]);
           bitWrite(DIRF, 4, ROC_Data[3]);
@@ -1284,10 +1301,10 @@ void ROC_MOBILE() { // group 2
     case 3:  {
         Message_Decoded = true; // we understand these 
         if (ROC_recipient == MyLocoAddr) {     //for me, do it!
-          //Serial.print(" Function change for :");  
-          //Serial.print(ROC_recipient); Serial.print(" data :"); 
+          Serial.print(" Function change for :");  
+          Serial.print(ROC_recipient); Serial.print(" data :"); 
 #ifdef _Audio          
-          //DebugSprintfMsgSend( sprintf ( DebugMsg, "SFX-F changed <%X>h <%X>h <%X>h",ROC_Data[1],ROC_Data[2],ROC_Data[3]));  //X is hex d is decimal
+          DebugSprintfMsgSend( sprintf ( DebugMsg, "SFX-F changed <%X>h <%X>h <%X>h",ROC_Data[1],ROC_Data[2],ROC_Data[3]));  //X is hex d is decimal
           //delay(1); // make sure its sent!
          
          SetSoundEffect(ROC_Data[1],ROC_Data[2],ROC_Data[3]); //Moved settings to SetSoundEffect
@@ -1386,7 +1403,7 @@ NodeClass= 0x02;
     case 10:  {
         Message_Decoded = true; // we understand these even if they are not for us//Acknowledge
         if ( (ROC_recipient ==   RocNodeID) || (    ROC_recipient ==   0)) {
-          Serial.print("ACKnowledging action:");       // action and port in D1, D2
+          Serial.print("ACKnowledging action:");       // action and port
           Serial.print(ROC_Data[1]);
           if (ROC_len >= 2) {
             Serial.print(" port:");
@@ -1947,4 +1964,3 @@ void DoRocNet() {
    }
   Message_Length = 0; // reset !
 }
-

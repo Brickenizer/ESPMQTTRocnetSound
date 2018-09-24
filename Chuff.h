@@ -24,12 +24,6 @@ void SoundEffects(void);
  
 
 
-/*/ uses RX/d9, D8, and D4 pins.
-
-  static const uint8_t D4   = 2;  and Blue Led on SP8266
-  static const uint8_t D5   = 14; for chuff output
-  static const uint8_t D8   = 15;
-*/
 /*//Temporary override sound volumes 
 CV[100]=127; // Overall volume control
 CV[101]=127; //volume for F1 

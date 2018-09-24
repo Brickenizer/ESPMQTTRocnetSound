@@ -9,7 +9,7 @@
   
 #include "Directives.h";
 #ifdef _AudioDAC
-  #include "AudioOutputI2SDAC.h"
+  #include "AudioOutputI2S.h"
 #endif
 #ifdef _AudioNoDAC
   #include "AudioOutputI2SNoDAC.h"
@@ -20,7 +20,7 @@
 AudioGeneratorWAV *wav[2];
 AudioFileSourceSPIFFS *file[2];
 #ifdef _AudioDAC
-  AudioOutputI2SDAC *out;
+  AudioOutputI2S *out;
 #endif
  #ifdef _AudioNoDAC
   AudioOutputI2SNoDAC *out;
@@ -41,10 +41,7 @@ long SteamPulseDuration =50;
 long ChuffPeriod;
 String LastFilePlayed="--";
 String ChuffType; // ="/ch";  //String ChuffType ="/99_H1_";  //alternate chuff sound
-uint8_t SoundEffect_Request[3];
-
-
-
+uint8_t SoundEffect_Request[4];
 
 extern void DebugSprintfMsgSend(int CX);
 extern char DebugMsg[127];
@@ -87,7 +84,7 @@ void SetUpAudio(uint32_t TimeNow){
 #ifdef _Audio
   Serial.printf("-- Sound System Initiating -- \n");
  #ifdef _AudioDAC
-  out = new AudioOutputI2SDAC();
+  out = new AudioOutputI2S();
    Serial.printf("-- Using I2S DAC -- \n");
   #endif
  #ifdef _AudioNoDAC
@@ -257,6 +254,9 @@ void AudioLoop(int32_t TimeNow){
     return PlayingSoundEffect;
     }
   void SoundEffects(void) {
+          if(SoundEffect_Request[1] != 0){
+            DebugSprintfMsgSend( sprintf ( DebugMsg, "sfx >>--> %d %x", SoundEffect_Request[1], SoundEffect_Request[1]));
+          }
           if(bitRead(SoundEffect_Request[1],0)==1){
             if (!PlayingSoundEffect){BeginPlay(1,"/F1.wav",CV[101]);
             DebugSprintfMsgSend( sprintf ( DebugMsg, "sfx-F1"));}
@@ -294,4 +294,3 @@ void AudioLoop(int32_t TimeNow){
 
 
  
-

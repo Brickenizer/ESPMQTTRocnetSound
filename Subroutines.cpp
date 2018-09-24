@@ -154,20 +154,16 @@ void FlashMessage (char* msg, int Repeats, int ON, int Off) {
 }
 void SetPortPinIndex() {
   // set my indexed port range for indexed use later  other code translates D0 to the pin number ESP uses.. 
-  NodeMCUPinD[0] = D0;
-  NodeMCUPinD[1] = D1;
-  NodeMCUPinD[2] = D2;
-  NodeMCUPinD[3] = D3;
-  NodeMCUPinD[4] = D4;
-  NodeMCUPinD[5] = D5;
-  NodeMCUPinD[6] = D6;
-  NodeMCUPinD[7] = D7;
-  NodeMCUPinD[8] = D8;
-//    static const uint8_t D9   = 3;
-//  static const uint8_t D10  = 1;
- //no D9 wemos NodeMCUPinD[9] = D9;
- //no D10 wemos  NodeMCUPinD[10] = D10;
+  NodeMCUPinD[0] = MCU_D0;
+  NodeMCUPinD[1] = MCU_D1;
+  NodeMCUPinD[2] = MCU_D2;
+  NodeMCUPinD[3] = MCU_D3;
+  NodeMCUPinD[4] = MCU_D4;
+  NodeMCUPinD[5] = MCU_D5;
+  NodeMCUPinD[6] = MCU_D6;
+  NodeMCUPinD[7] = MCU_D7;
+  NodeMCUPinD[8] = MCU_D8;
+ //no D9 wemos NodeMCUPinD[9] = MCU_D9;
+ //no D10 wemos  NodeMCUPinD[10] = MCU_D10;
 
 }
-
-

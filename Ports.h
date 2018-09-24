@@ -1,4 +1,4 @@
-
+#include "pin_defines.h"
 boolean ButtonState[12] ;
 int lastButtonState[12];
 //
@@ -26,7 +26,9 @@ int SDemand[12];
 int ServoOff_Delay_Until[12];
 
 
-//Servo Loco_LOCO_SERVO_Driven_Port;  // create servo object to control a servo  // servo 0 in ver107 on to be loco, but connected on pin D1. 
+//Servo Loco_LOCO_SERVO_Driven_Port;  
+// create servo object to control a servo  
+// servo 0 in ver107 on to be loco, but connected on pin D1. 
 Servo myservo1;  // create servo object to control a servo
 Servo myservo2;  // create servo object to control a servo
 Servo myservo3;  // create servo object to control a servo
@@ -38,7 +40,7 @@ Servo myservo8;  // create servo object to control ... used for loco motors in v
 
 // conditional externs 
 #ifdef _Audio 
-extern uint8_t SoundEffect_Request[3];
+extern uint8_t SoundEffect_Request[4];
 extern void SetChuffPeriodFromSpeed(uint16_t value);
 //extern void SetChuffPeriodFromServoPos(uint16_t value);
 
@@ -79,9 +81,10 @@ bool Dir;
 
 #ifdef _Audio
 // do brakes here
-          if ((Last_Speed_demand>= 1) && (SpeedDemand ==0)&&(bitRead(SoundEffect_Request[2],0)==1)){ //F9 is chuffs on
-                       BeginPlay(0,"/brakes.wav",CV[111]); //brakes.wav should be a brake squeal sample
-                       }  
+          if ((Last_Speed_demand>= 1) && (SpeedDemand ==0)&&(bitRead(SoundEffect_Request[2],0)==1)){ 
+            //F9 is chuffs on
+            BeginPlay(0,"/brakes.wav",CV[111]); //brakes.wav should be a brake squeal sample
+          }  
 #endif 
 // check for lights off          
           if  (!(bitRead(dirf, 4))) {  //lights off
@@ -715,56 +718,56 @@ void SetServo( int i, uint16_t value) { // uses 0-180
     
       case 1: {
           if (!myservo1.attached()) { 
-            myservo1.attach(D1);
+            myservo1.attach(SERVO1);
           }
           myservo1.write(value);
           }
         break;
       case 2: {
           if (!myservo2.attached()) {
-            myservo2.attach(D2);
+            myservo2.attach(SERVO2);
           }
           myservo2.write(value);
         }
         break;
       case 3: {
           if (!myservo3.attached()) {
-            myservo3.attach(D3);
+            myservo3.attach(SERVO3);
           }
           myservo3.write(value);
         }
         break;
       case 4: {
           if (!myservo4.attached()) {
-            myservo4.attach(D4);
+            myservo4.attach(SERVO4);
           }
           myservo4.write(value);
         }
         break;
       case 5: {
           if (!myservo5.attached()) {
-            myservo5.attach(D5);
+            myservo5.attach(SERVO5);
           }
           myservo5.write(value);
         }
         break;
       case 6: {
           if (!myservo6.attached()) {
-            myservo6.attach(D6);
+            myservo6.attach(SERVO6);
           }
           myservo6.write(value);
         }
         break;
       case 7: {
           if (!myservo7.attached()) {
-            myservo7.attach(D7);
+            myservo7.attach(SERVO7);
           }
           myservo7.write(value);
         }
         break;
       case 8: {
           if (!myservo8.attached()) {
-            myservo8.attach(D8);
+            myservo8.attach(SERVO8);
           }
           myservo8.write(value);
         }
@@ -853,5 +856,3 @@ void SERVOS() {              // attaches and detaches servos, accelerates to dem
 #endif
   } // end i 1..8 loop
 }//end servos
-
-

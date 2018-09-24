@@ -1,27 +1,12 @@
-/** Typical (MISO MOSI SCLK and CS are hard coded in MFRC522....) pin layout used:
-   -----------------------------------------------------------------------------------------
-               MFRC522      ESP866            NodeMCU     NUMBER
-               Reader/PCD
-   Signal      Pin          Pin
-   -----------------------------------------------------------------------------------------
-   cs                                                      15
-   SPI MOSI    MOSI         GPIO13             D7          13
-   SPI MISO    MISO         GPIO12             D6          12
-   SPI SCK     SCK          GPIO14             D5          14
-                            GPIO9              SD2
-                            GPIO10             SD3
-   RST/Reset   RST          GPIO4              D2          4
-   SPI SS      SDA(SS)      GPIO5              D1          5*/
-
    
 //#if defined(ARDUINO_ESP8266_ESP01)
 
  #include <SPI.h>
  #include <MFRC522.h> //   mine is modified to give 10Mhz with ESP  #define SPI_CLOCK_DIV_4 10000000  #define myClock  10000000 // replaces    SPI_CLOCK_DIV4
+#include "pin_defines.h"
 
-#define RST_PIN         D0           // Configurable, see typical pin layout above
-#define SS_PIN          D1           // Configurable, see typical pin layout above
-// Configurable, see typical pin layout above    //setup
+// Configurable, see typical pin layout above    
+//setup
 //RFID stuff***************************************************************
 #define NR_OF_PORTS     1
 #define NR_OF_SVS       NR_OF_PORTS * 3 + 3
@@ -151,5 +136,3 @@ void checkRFID() {
 
   }//ifmrfc
 }
-
-
