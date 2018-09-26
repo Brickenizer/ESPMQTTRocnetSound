@@ -255,7 +255,7 @@ void AudioLoop(int32_t TimeNow){
     }
   void SoundEffects(void) {
           if(SoundEffect_Request[1] != 0){
-            DebugSprintfMsgSend( sprintf ( DebugMsg, "sfx >>--> %d %x", SoundEffect_Request[1], SoundEffect_Request[1]));
+            DebugSprintfMsgSend( sprintf ( DebugMsg, "sfx >>--> %d %x\n", SoundEffect_Request[1], SoundEffect_Request[1]));
           }
           if(bitRead(SoundEffect_Request[1],0)==1){
             if (!PlayingSoundEffect){BeginPlay(1,"/F1.wav",CV[101]);
