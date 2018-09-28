@@ -90,21 +90,21 @@ bool Dir;
           if  (!(bitRead(dirf, 4))) {  //lights off
                 digitalWrite (NodeMCUPinD[FRONTLight], 1);
                 digitalWrite (NodeMCUPinD[BACKLight], 1);
-                                  }
+          }
                                
          if ((Speed_demand==0)&&(Last_Speed_demand!=0)) {Dir=Last_Direction;}              // keep the lights in the right direction until stopped?     
          else {Last_Direction=Dir;}    // catches rocrail issue where direction changes if 0 is pressed. keeps lights on in correct phase until stop, but changes if 0 repeatedly pressed                              
                              
-//setup the lights
+    //setup the lights
           //---------do Direction Lights but not  Servo settings---------------
-   if (bitRead(CV[29], 0)) {         // need to account for the  cv29 bit 0....
-            if (Dir) {
-                           if  (bitRead(dirf, 4)) { //front lights on
+    if (bitRead(CV[29], 0)) {         // need to account for the  cv29 bit 0....
+      if (Dir) {
+        if  (bitRead(dirf, 4)) { //front lights on
                 digitalWrite (NodeMCUPinD[FRONTLight], 0);
                 digitalWrite (NodeMCUPinD[BACKLight], 1);
-              }
-            }
-            else {
+        }
+      }
+      else {
               if  (bitRead(dirf, 4)) {//lights on
                 digitalWrite (NodeMCUPinD[BACKLight], 0);
                 digitalWrite (NodeMCUPinD[FRONTLight], 1);

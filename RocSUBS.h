@@ -1102,14 +1102,24 @@ char*  Show_ROC_MSG() {
     strcat(DebugMessage, " Sdr:"); snprintf(DebugMessage, sizeof(DebugMessage), "%s%d", DebugMessage, ROC_sender);
     strcat(DebugMessage, " Grp:"); snprintf(DebugMessage, sizeof(DebugMessage), "%s%d", DebugMessage, ROC_group);
     strcat(DebugMessage, " Code[");
-    if ((ROC_code & 0x60) == 0) {
+    int tmp_res = ROC_code & 0x60;
+    switch (ROC_code & 0x60){
+    case 0: {
       strcat(DebugMessage, "Req]:");
+      break;
     }
-    if ((ROC_code & 0x60) == 0x20) {
+    case 0x20: {
       strcat(DebugMessage, "Evt]:");
+      break;
     }
-    if ((ROC_code & 0x60) == 0x40) {
+    case 0x40: {
       strcat(DebugMessage, "Rpy]:"); //// add request event reply then code.. (5 bits)
+      break;
+    }
+    default:
+    strcat(DebugMessage, "UNK]:");
+    snprintf(DebugMessage, sizeof(DebugMessage), "%s %x ",DebugMessage, (ROC_code&0x60));
+    break;
     }
     snprintf(DebugMessage, sizeof(DebugMessage), "%s%d", DebugMessage, (ROC_code & 0x1F));
     for (byte i = 1; i <= ROC_len; i++) {
@@ -1117,7 +1127,7 @@ char*  Show_ROC_MSG() {
       strcat(DebugMessage, "="); snprintf(DebugMessage, sizeof(DebugMessage), "%s%d", DebugMessage, ROC_Data[i]);
     }
 
-    //Serial.print(DebugMessage);
+    Serial.print(DebugMessage);
   } return DebugMessage;
 }
 
@@ -1268,6 +1278,12 @@ extern void SetMotorSpeed(uint8_t SpeedDemand,uint8_t dirf);
 void ROC_MOBILE() { // group 2
   Serial.print("ROC_code=");
   Serial.println(ROC_code);
+  if (ROC_recipient == MyLocoAddr) {
+    Serial.print("Message for me:");
+  }else{
+    Serial.print("Message for another:");
+  }
+  Serial.println(ROC_recipient); 
   switch (ROC_code) {
     case 0:  {}    // NOP
       break;
@@ -1276,15 +1292,21 @@ void ROC_MOBILE() { // group 2
     case 2:  {
               Serial.print("Local:");
               Serial.print(CV[1]);
-              Serial.print(" MSG for:");
-              Serial.print(ROC_recipient);
-              Serial.print(" A am locoAddr=");
-              Serial.println(MyLocoAddr);
-              
+              Serial.print(" ROC_Data ");
+              Serial.print(ROC_Data[1]);
+              Serial.print(" ");
+              Serial.print(ROC_Data[2]);
+              Serial.print(" ");
+              Serial.print(ROC_Data[3]);
+              Serial.print(" ");
+              Serial.println("");
+          sprintf ( DebugMsg, " Speed<%d> Dir<%d> Lights<%d>",ROC_Data[1], bitRead(DIRF,5),bitRead(DIRF,4));  //X is hex d is decimal
+          Serial.println(DebugMsg);
+                        
         // set Velocity, direction , lights
         Message_Decoded = true; // we understand these even if they are not for us
-#ifdef _LOCO_SERVO_Driven_Port
         if (ROC_recipient == MyLocoAddr) {
+#ifdef _LOCO_SERVO_Driven_Port
           //data for me, do it!
         
           Serial.print (" Set Speed ");
@@ -1294,12 +1316,20 @@ void ROC_MOBILE() { // group 2
           bitWrite(DIRF, 4, ROC_Data[3]);
           // Moved all loco stuff from here to SetMotorSpeed 
           DebugSprintfMsgSend( sprintf ( DebugMsg, " Speed<%d> Dir<%d> Lights<%d>",ROC_Data[1], bitRead(DIRF,5),bitRead(DIRF,4)));  //X is hex d is decimal
-          SetMotorSpeed(ROC_Data[1],DIRF);                          }
+          SetMotorSpeed(ROC_Data[1],DIRF);                          
+#else
+          Serial.println("WARNING: not actually set");
 #endif
+          }
              }    // set Velocity, direction , lights
       break;
     case 3:  {
         Message_Decoded = true; // we understand these 
+        Serial.print("ROC_recipient = ");
+        Serial.print(ROC_recipient);
+        Serial.print(" MyLocoAddr = ");
+        Serial.print(MyLocoAddr);
+        Serial.println("");
         if (ROC_recipient == MyLocoAddr) {     //for me, do it!
           Serial.print(" Function change for :");  
           Serial.print(ROC_recipient); Serial.print(" data :"); 
@@ -1323,6 +1353,7 @@ void ROC_MOBILE() { // group 2
     case 5:  {}    // fieldcmd
       break;
   }
+  
 }
 void ROC_CLOCK() {
   hrs = ROC_Data[5];
