@@ -62,8 +62,8 @@ uint8_t CV[256];
 uint8_t RN[256];
 
 uint16_t ROCNode_Status;
-
-char* Nickname;
+char nickname[20]={""};
+char* Nickname=nickname;
 uint8_t hrs;
 uint8_t mins;
 uint8_t secs;   

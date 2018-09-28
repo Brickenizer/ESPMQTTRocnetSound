@@ -137,7 +137,7 @@ bool Dir;
 
 
 uint16_t SetLocoMotorRC(int LocoPort, uint16_t SpeedDemand,bool dir){  //RC servo is set  0 to 180  
-  uint8_t value;
+ // uint8_t value;
 uint8_t servodemand;
 uint16_t MinSpeed;
 uint16_t AdditionalSpeedDemand;
@@ -201,7 +201,7 @@ return SpeedDemand;
 
 
 uint16_t SetLocoMotorPWM(int LocoPort, uint16_t SpeedDemand,bool dir){  //PWM Speed demand range is approx mph  
-uint8_t value;
+//uint8_t value;
 uint16_t PWMdemand;
 uint16_t MinSpeed;
 uint16_t AdditionalSpeedDemand;
@@ -387,8 +387,8 @@ if(Last_Speed_demand != Speed_demand){
 
 void READ_PORT( int i) {
   boolean STATE;
-  uint8_t TEMP;
-  uint16_t senderADDR;
+  //uint8_t TEMP;
+  //uint16_t senderADDR;
   if (((Pi02_Port_Settings_D[i] & 0x01) == 1) && ((Pi03_Setting_options[i] & 32) != 32))  { // only do this if this port is an "INPUT" and not a "SERVO"
     if (Debounce(i)) { // debounce is true if switch changed
 
@@ -557,7 +557,7 @@ void PortMode(int i) {
 
 
 void PortSetupReport() {
-  int i;
+  //int i;
 
 if (!bReaderActive) {
     #ifdef  _RFID
@@ -702,8 +702,8 @@ void DETACH() {
 
 
 void SetServo( int i, uint16_t value) { // uses 0-180
-  long MotorSpeed;
-  uint16_t SavedValue;
+  //long MotorSpeed;
+//  uint16_t SavedValue;
   
   if ((Pi03_Setting_options[i] & 32) == 32) { // double check, as this is called from two places
     ServoLastPos[i]=value;
@@ -798,9 +798,9 @@ void SERVOS() {              // attaches and detaches servos, accelerates to dem
   int offset;
   int steps;
   int SERVOSET;
-  int set;
+  //int set;
   uint32_t LocalTimer;
-  int MotorSpeed;
+  //int MotorSpeed;
   LocalTimer=millis();
   for (int i = 1 ; i <= 8; i++) { //up to 8 servos.. originally,  _LOCO_SERVO_Driven_Port was just another srvo used here but with different settings  
 #ifdef _LOCO_SERVO_Driven_Port    

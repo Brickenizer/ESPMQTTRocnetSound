@@ -1038,7 +1038,8 @@ void ReadEEPROM() {
   */
 
     // Nickname, length RN[3] ESP is default
-       Nickname="                   ";
+    sprintf(Nickname,"                   ");
+      // Nickname="                   ";
          
           Serial.println("--------------------------------------");
           // Serial.print(" EEPROM Read: This Node Nickname is:");
@@ -1143,6 +1144,9 @@ void Show_ROC_MSGS(uint8_t *payload) {
 //    ROC_Data[7 + i];
 //  }
   Message_Length = ROC_len + 7;
+  if (0 && payload){
+    Serial.println("payload set");
+  }
   Serial.print(Show_ROC_MSG());
 }
 
@@ -1729,7 +1733,7 @@ RN[27]=0; //050 L  set 1 for "0x50" 3 for 0x50,0x51 etc..
         Message_Decoded = true; // we understand these even if they are not for us
         if ( (ROC_recipient ==   RocNodeID) || (    ROC_recipient ==   0)) {
 
-          int TEMP;
+          //int TEMP;
           int port;
           PrintTime (" Multi byte READ  Channel data sending:");
 
