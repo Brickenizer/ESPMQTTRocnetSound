@@ -7,7 +7,7 @@
   #include "AudioGeneratorWAV.h"
   #include "AudioOutputMixer.h"
   
-#include "Directives.h";
+#include "Directives.h"
 #ifdef _AudioDAC
   #include "AudioOutputI2S.h"
 #endif

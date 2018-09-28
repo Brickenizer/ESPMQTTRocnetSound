@@ -1,6 +1,6 @@
 #ifndef _subs_h
 #define _subs_h
-  #include <Arduino.h> //needed 
+#include <Arduino.h>
 
 //void DebugMsgSend (char* topic, char* payload) ;
 //  void DebugSprintfMsgSend(int CX);

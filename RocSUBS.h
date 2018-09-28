@@ -82,7 +82,8 @@ Pi03_Setting_LastUpdated[i]=0;
   }
 
   
-#ifndef _LOCO_SERVO_Driven_Port {  
+#ifndef _LOCO_SERVO_Driven_Port 
+//{  
  // a set of defaults derived from a saved emprom set...for a station
  // This set sets 1-4 as pwm outputs 
  //     ( BUT use only 1 and 2 with the motor board for lights (to gnd) on outputs 2 and 4 due to strange DebugMsg logic in motor driver)

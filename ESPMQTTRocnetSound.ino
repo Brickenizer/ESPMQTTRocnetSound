@@ -1,6 +1,6 @@
 //Compiler Directives and code options are in Directives.h
 
-#include "Directives.h";
+#include "Directives.h"
 
 //----DO NOT FORGET TO UPLOAD THE SKETCH DATA ---
 //   To check the code is working, in command prompt, set up a MQTT "debug" monitor: (e.g. For MQTT broker at 192.18.0.18) "CD C:\mosquitto  mosquitto_sub -h 192.168.0.18 -i "CMD_Prompt" -t debug -q 0" 
@@ -11,7 +11,7 @@
 #ifdef _Use_Wifi_Manager
        #include <WiFiManager.h>
 #else
-       #include "Secrets.h";
+       #include "Secrets.h"
        String wifiSSID = SSID_RR;
        String wifiPassword = PASS_RR; 
 #endif
@@ -46,17 +46,17 @@ bool Last_Direction;
 bool Last_Set_Dir;
 
 #include "Globals.h"
-#include "Subroutines.h";
-#include "MQTT.h"; //new place for mqtt stuff
-#include "RocSUBS.h";
-#include "Ports.h";
+#include "Subroutines.h"
+#include "MQTT.h"
+#include "RocSUBS.h"
+#include "Ports.h"
 
 #ifdef _Audio
-#include "Chuff.h";  
+#include "Chuff.h"
 #endif
 
 #ifdef _RFID
- #include "RFID_Subs.h";
+   #include "RFID_Subs.h"
 #endif
 
 extern  uint32_t Motor_Setting_Update_Time;

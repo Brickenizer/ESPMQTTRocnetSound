@@ -1,6 +1,6 @@
-#include "MQTT.h";
+#include "MQTT.h"
 #include <Arduino.h> //needed 
-  #include "Directives.h";
+#include "Directives.h"
 
 
 #include <PubSubClient.h>
@@ -14,7 +14,6 @@ PubSubClient client(espClient);
 
 extern IPAddress mosquitto;
 
-//#include "Globals.h";
 extern uint16_t RocNodeID;
 extern void PrintTime(String MSG) ;
 extern void WriteEEPROM(void);
@@ -270,7 +269,7 @@ void reconnect() {
      // 
      connects=connects+1;
     if (connects>=5){  mosquitto[3] = mosquitto[3]+1; 
-    #ifdef myBrokerSubip; 
+    #ifdef myBrokerSubip
       mosquitto[3]= myBrokerSubip  //change to set  myBrokerSubip as your broker last ip address (defined in secrets)..
     #endif
     if (mosquitto[3]>=50){mosquitto[3]=3;}   }   // limit mqtt broker to 3-50 to save scan time
@@ -284,4 +283,3 @@ void reconnect() {
     }
   }
 }
-
