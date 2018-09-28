@@ -116,7 +116,7 @@ void Status(){
   //   ++++++++++ MQTT setup stuff   +++++++++++++++++++++
   mosquitto[0] = ipBroad[0]; mosquitto[1] = ipBroad[1]; mosquitto[2] = ipBroad[2];
   mosquitto[3] = RN[14];                //saved mosquitto address, where the broker is! saved as RN[14],
-  #ifdef myBrokerSubip; 
+  #ifdef myBrokerSubip
       mosquitto[3]= myBrokerSubip  //change to set  myBrokerSubip as your broker last ip address..(defined in secrets)..
   #endif
   Serial.print(F(" Mosquitto will first try to connect to:"));

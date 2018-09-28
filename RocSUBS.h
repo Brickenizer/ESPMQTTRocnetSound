@@ -1103,24 +1103,24 @@ char*  Show_ROC_MSG() {
     strcat(DebugMessage, " Sdr:"); snprintf(DebugMessage, sizeof(DebugMessage), "%s%d", DebugMessage, ROC_sender);
     strcat(DebugMessage, " Grp:"); snprintf(DebugMessage, sizeof(DebugMessage), "%s%d", DebugMessage, ROC_group);
     strcat(DebugMessage, " Code[");
-    int tmp_res = ROC_code & 0x60;
+
     switch (ROC_code & 0x60){
-    case 0: {
-      strcat(DebugMessage, "Req]:");
-      break;
-    }
-    case 0x20: {
-      strcat(DebugMessage, "Evt]:");
-      break;
-    }
-    case 0x40: {
-      strcat(DebugMessage, "Rpy]:"); //// add request event reply then code.. (5 bits)
-      break;
-    }
-    default:
-    strcat(DebugMessage, "UNK]:");
-    snprintf(DebugMessage, sizeof(DebugMessage), "%s %x ",DebugMessage, (ROC_code&0x60));
-    break;
+      case 0: {
+        strcat(DebugMessage, "Req]:");
+        break;
+      }
+      case 0x20: {
+        strcat(DebugMessage, "Evt]:");
+        break;
+      }
+      case 0x40: {
+        strcat(DebugMessage, "Rpy]:"); //// add request event reply then code.. (5 bits)
+        break;
+      }
+      default:
+        strcat(DebugMessage, "UNK]:");
+        snprintf(DebugMessage, sizeof(DebugMessage), "%s %x ",DebugMessage, (ROC_code&0x60));
+        break;
     }
     snprintf(DebugMessage, sizeof(DebugMessage), "%s%d", DebugMessage, (ROC_code & 0x1F));
     for (byte i = 1; i <= ROC_len; i++) {
@@ -1139,9 +1139,9 @@ void Show_ROC_MSGS(uint8_t *payload) {
   ROC_group = sendMessage[5];
   ROC_code = sendMessage[6];
   ROC_len = sendMessage[7];
-  for (byte i = 1; i <= ROC_len; i++) {
-    ROC_Data[7 + i];
-  }
+//  for (byte i = 1; i <= ROC_len; i++) {
+//    ROC_Data[7 + i];
+//  }
   Message_Length = ROC_len + 7;
   Serial.print(Show_ROC_MSG());
 }
@@ -1374,7 +1374,7 @@ void ROC_CLOCK() {
 }
 
 void ROC_NODE() { // stationary decoders GROUP 3
-  uint8_t TEMP;
+//  uint8_t TEMP;
 
   switch (ROC_code) {
   uint8_t NodeClass;  

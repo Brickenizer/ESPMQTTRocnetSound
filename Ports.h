@@ -72,7 +72,7 @@ void SERVOS(void);
 
 void SetMotorSpeed(uint8_t SpeedDemand,uint8_t dirf){ // lc dirf to avoid confusion with DIRF ?
 #ifdef _LOCO_SERVO_Driven_Port 
-int servodemand;
+//int servodemand;
 bool Dir;
           Speed_demand = SpeedDemand;
           if (Speed_demand>=60) {Speed_demand=60;} // set a max speed (trying to find a bug in pwm speed 
@@ -136,200 +136,169 @@ bool Dir;
 
 
 
-uint16_t SetLocoMotorRC(int LocoPort, uint16_t SpeedDemand,bool dir){
-  //RC servo is set  0 to 180  
+uint16_t SetLocoMotorRC(int LocoPort, uint16_t SpeedDemand,bool dir){  //RC servo is set  0 to 180  
   uint8_t value;
-  uint8_t servodemand;
-  uint16_t MinSpeed;
-  uint16_t AdditionalSpeedDemand;
-  bool STOPdemand;
-  uint16_t Max_Speed;
+uint8_t servodemand;
+uint16_t MinSpeed;
+uint16_t AdditionalSpeedDemand;
+bool STOPdemand;
+uint16_t Max_Speed;
   STOPdemand=false;
-  if (SpeedDemand==0) { STOPdemand=true; }
-  
-  MinSpeed = 5; // RC min speed is higher than PWM...this is the actual (scale mph) speed when the motor is running as slow as it can reliablly
-  //concept  : Min speed voltage is set by CV 2, with CV 65 orCV 95 trim added and is "MinSpeed"  The rest is linearly added related to by  CV 5
-  //90 = CV[2] + ((max * CV[5])/10) ;
-  //90-CV[2]= (max * CV[5])/10 ;
-  //10*(90-CV[2])= max * CV[5] ;
-  //(10*(90-CV[2]))/CV[5]= max ;
-  
-  //needed correcting for rc with trims
-  Max_Speed= (3+((10*(90-CV[2]+CV[66]) )/CV[5]));
+if (SpeedDemand==0) { STOPdemand=true; }
+
+MinSpeed = 5; // RC min speed is higher than PWM...this is the actual (scale mph) speed when the motor is running as slow as it can reliablly
+//concept  : Min speed voltage is set by CV 2, with CV 65 orCV 95 trim added and is "MinSpeed"  The rest is linearly added related to by  CV 5
+//90 = CV[2] + ((max * CV[5])/10) ;
+//90-CV[2]= (max * CV[5])/10 ;
+//10*(90-CV[2])= max * CV[5] ;
+//(10*(90-CV[2]))/CV[5]= max ;
+  Max_Speed= (3+((10*(90-CV[2]+CV[66]) )/CV[5])); //needed correcting for rc with trims
   if (dir){   Max_Speed= (3+((10*(90-CV[2]+CV[95]) )/CV[5])); }
-  if (SpeedDemand>=Max_Speed){SpeedDemand=Max_Speed;}  // limit the max speed here so it also limits the chuff settings.
-  
-  
-  if (POWERON){  
-    
-    // SET SPEED TO 3 (MPH) AND ADJUST cv2  FOR EXACT 3MPH SPEED.. use CV 65 (fwd) and CV 95 (rev) to get exact. 
-    // THEN SET CV 5 FOR 10 MPH (OR HIGHER) ACCURATE SPEED
-    
-    // 
-    
-    // how much faster am I asking for?
-    if (SpeedDemand<=MinSpeed){
-      AdditionalSpeedDemand=0;
-    }else {
-      AdditionalSpeedDemand=SpeedDemand-MinSpeed;
+if (SpeedDemand>=Max_Speed){SpeedDemand=Max_Speed;}  // limit the max speed here so it also limits the chuff settings.
+
+   
+if (POWERON){  
+
+ // SET SPEED TO 3 (MPH) AND ADJUST cv2  FOR EXACT 3MPH SPEED.. use CV 65 (fwd) and CV 95 (rev) to get exact. 
+ // THEN SET CV 5 FOR 10 MPH (OR HIGHER) ACCURATE SPEED
+
+// 
+
+if (SpeedDemand<=MinSpeed){AdditionalSpeedDemand=0;}// how much faster am I asking for?
+else {AdditionalSpeedDemand=SpeedDemand-MinSpeed; }
+
+if (AdditionalSpeedDemand<= 0){ AdditionalSpeedDemand=0; SpeedDemand=MinSpeed;}
+if (AdditionalSpeedDemand>= 100){ AdditionalSpeedDemand=100;}
+
+//concept  : Min speed is set by CV 2, with CV 66 orCV 95 trim added and is "MinSpeed"  The rest is linearly added related to by  CV 5
+servodemand = CV[2] + ((AdditionalSpeedDemand * CV[5])/10) ;
+
+if (bitRead(CV[29], 0)) {         // need to account for the  cv29 bit 0....
+if (dir) {servodemand = 90- servodemand -CV[95]; }  // trims.. aiming for 0-1024, with 10 mph = about 1rpm swap cv 2 or 6 depending on direction
+    else {servodemand = 90+ servodemand +CV[66]; }
     }
-    
-    if (AdditionalSpeedDemand<= 0){
-      AdditionalSpeedDemand=0;
-      SpeedDemand=MinSpeed;
-    }
-    if (AdditionalSpeedDemand>= 100){
-      AdditionalSpeedDemand=100;
-    }
-    
-    //concept  : Min speed is set by CV 2, with CV 66 orCV 95 trim added
-    //and is "MinSpeed"  The rest is linearly added related to by  CV 5
-    servodemand = CV[2] + ((AdditionalSpeedDemand * CV[5])/10) ;
-    
-    // need to account for the  cv29 bit 0....
-    if (bitRead(CV[29], 0)) {
-      // trims.. aiming for 0-1024, with 10 mph = about 1rpm swap cv 2
-      //  or 6 depending on direction
-      if (dir) {
-	servodemand = 90 - servodemand - CV[95];
-      } else {
-	servodemand = 90+ servodemand +CV[66];
-      }
-    } else {
-      if (dir){
-	servodemand = 90 + servodemand + CV[66];
-      } else {
-	servodemand = 90 - servodemand - CV[95];
-      }
+else {if (dir){servodemand =  90+servodemand +CV[66]; } 
+    else {servodemand = 90- servodemand -CV[95]; }
     }
 
 
-    if (STOPdemand) {
-      servodemand=90;
-    }
-    // servo range held to    1-179
-    if (servodemand >= 179) {
-      servodemand = 179;
-    }
-    if ((servodemand) <= 1  ) {
-      servodemand = 1;
-    }
+if (STOPdemand) { servodemand=90; }
+          if (servodemand >= 179) { servodemand = 179; }
+          if ((servodemand) <= 1  ) {  servodemand = 1;} // servo range held to    1-179
      
 #ifdef _SERVO_DEBUG
-    DebugSprintfMsgSend( sprintf ( DebugMsg, "RC motor speed:%d dir<%d>  servo setting:%d (max from CV's:%d)",SpeedDemand,dir, servodemand,Max_Speed));      
+DebugSprintfMsgSend( sprintf ( DebugMsg, "RC motor speed:%d dir<%d>  servo setting:%d (max from CV's:%d)",SpeedDemand,dir, servodemand,Max_Speed));      
 #endif        
-    SetServo(LocoPort, servodemand );
-    Loco_servo_last_position=servodemand;
-  }else {
-    SetServo(LocoPort, 90 );
+         SetServo(LocoPort, servodemand );
+         Loco_servo_last_position=servodemand;
+         
+  
+}else {
+   SetServo(LocoPort, 90 );}
+  if (STOPdemand) {SpeedDemand=0;}
+return SpeedDemand;    
   }
-  if (STOPdemand) {
-    SpeedDemand=0;
-  }
-  return SpeedDemand;    
+
+
+uint16_t SetLocoMotorPWM(int LocoPort, uint16_t SpeedDemand,bool dir){  //PWM Speed demand range is approx mph  
+uint8_t value;
+uint16_t PWMdemand;
+uint16_t MinSpeed;
+uint16_t AdditionalSpeedDemand;
+bool STOPdemand;
+uint16_t Max_Speed;
+#ifdef _LocoPWMDirPort
+Max_Speed= 3+((1023-(CV[2]*10)+CV[66])/CV[5]);  // fwd trim is 66
+if (dir){  Max_Speed= 3+((1023-(CV[2]*10)+CV[95])/CV[5]);}
+if (SpeedDemand>=Max_Speed){SpeedDemand=Max_Speed;}  // limit the max speed here so it also limits the chuff settings.
+
+ if (POWERON){
+  STOPdemand=false;
+if (SpeedDemand==0) { STOPdemand=true; }
+MinSpeed = 3; // this is the actual (scale mph) speed when the motor is running as slow as it can reliablly
+ //to do
+ // SET SPEED TO 3 (MPH) AND ADJUST cv2  FOR EXACT 3MPH SPEED.. use CV 66 (fwd) and CV 95 (rev) to get exact. 
+ // THEN SET CV 5 FOR 10 MPH (OR HIGHER) ACCURATE SPEED
+ // set pwm port to direction
+
+if (SpeedDemand<=MinSpeed){AdditionalSpeedDemand=0;}
+else {AdditionalSpeedDemand=SpeedDemand-MinSpeed; }// how much faster am I asking for?
+if (AdditionalSpeedDemand<= 0){ AdditionalSpeedDemand=0; SpeedDemand=MinSpeed;}
+if (AdditionalSpeedDemand>= 100){ AdditionalSpeedDemand=100;}
+
+//concept  : Min speed is set by CV 2, with CV 66 orCV 95 trim added and is "MinSpeed"  The rest is linearly added related to by  CV 5
+PWMdemand =  ((CV[2]*10) + (AdditionalSpeedDemand * CV[5]));
+if (bitRead(CV[29], 0)) {         // need to account for the  cv29 bit 0....
+if (dir) {PWMdemand = PWMdemand +CV[95]; }  // trims.. aiming for 0-1024, with 10 mph = about 1rpm swap cv 2 or 6 depending on direction
+    else {PWMdemand =  PWMdemand +CV[66]; }
+    }
+else {if (dir){PWMdemand =  PWMdemand +CV[66]; } 
+    else {PWMdemand = PWMdemand +CV[95]; }
+    }
+
+if (PWMdemand>=1023) {PWMdemand=1023;}
+if (PWMdemand<=0) {PWMdemand=0;}
+if (STOPdemand) { PWMdemand=0; }
+
+ //if (POWERON){
+         // DebugSprintfMsgSend( sprintf ( DebugMsg, "PWM motor speed:%d dir<%d>  PWM setting:%d (max from CV's:%d)",SpeedDemand,dir, PWMdemand,Max_Speed));
+         
+  //            }
+if (bitRead(CV[29], 0)) {         // need to account for the  cv29 bit 0....
+if (dir){
+analogWrite(NodeMCUPinD[_LocoPWMDirPort] , PWMdemand);
+digitalWrite (NodeMCUPinD[LocoPort] , false) ;
+#ifdef _SERVO_DEBUG
+DebugSprintfMsgSend( sprintf ( DebugMsg, "1 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
+#endif
+}
+else{
+analogWrite( NodeMCUPinD[LocoPort], PWMdemand);
+digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
+#ifdef _SERVO_DEBUG
+DebugSprintfMsgSend( sprintf ( DebugMsg, "2 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
+#endif
+}}
+else{  // inverted direction
+if (dir){
+analogWrite( NodeMCUPinD[LocoPort], PWMdemand);
+digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
+#ifdef _SERVO_DEBUG
+DebugSprintfMsgSend( sprintf ( DebugMsg, "3 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
+#endif
+}
+else{
+analogWrite(NodeMCUPinD[_LocoPWMDirPort] , PWMdemand);
+digitalWrite (NodeMCUPinD[LocoPort] , false) ;
+#ifdef _SERVO_DEBUG
+DebugSprintfMsgSend( sprintf ( DebugMsg, "4 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
+#endif
+}
 }
 
 
-uint16_t SetLocoMotorPWM(int LocoPort, uint16_t SpeedDemand,bool dir){
-  //PWM Speed demand range is approx mph  
-  uint8_t value;
-  uint16_t PWMdemand;
-  uint16_t MinSpeed;
-  uint16_t AdditionalSpeedDemand;
-  bool STOPdemand;
-  uint16_t Max_Speed;
-#ifdef _LocoPWMDirPort
-  Max_Speed= 3+((1023-(CV[2]*10)+CV[66])/CV[5]);  // fwd trim is 66
-  if (dir){  Max_Speed= 3+((1023-(CV[2]*10)+CV[95])/CV[5]);}
-  if (SpeedDemand>=Max_Speed){SpeedDemand=Max_Speed;}  // limit the max speed here so it also limits the chuff settings.
-  
-  if (POWERON){
-    STOPdemand=false;
-    if (SpeedDemand==0) { STOPdemand=true; }
-    MinSpeed = 3; // this is the actual (scale mph) speed when the motor is running as slow as it can reliablly
-    //to do
-    // SET SPEED TO 3 (MPH) AND ADJUST cv2  FOR EXACT 3MPH SPEED.. use CV 66 (fwd) and CV 95 (rev) to get exact. 
-    // THEN SET CV 5 FOR 10 MPH (OR HIGHER) ACCURATE SPEED
-    // set pwm port to direction
-    
-    if (SpeedDemand<=MinSpeed){AdditionalSpeedDemand=0;}
-    else {AdditionalSpeedDemand=SpeedDemand-MinSpeed; }// how much faster am I asking for?
-    if (AdditionalSpeedDemand<= 0){ AdditionalSpeedDemand=0; SpeedDemand=MinSpeed;}
-    if (AdditionalSpeedDemand>= 100){ AdditionalSpeedDemand=100;}
-    
-    //concept  : Min speed is set by CV 2, with CV 66 orCV 95 trim added and is "MinSpeed"  The rest is linearly added related to by  CV 5
-    PWMdemand =  ((CV[2]*10) + (AdditionalSpeedDemand * CV[5]));
-    if (bitRead(CV[29], 0)) {         // need to account for the  cv29 bit 0....
-      if (dir) {PWMdemand = PWMdemand +CV[95]; }  // trims.. aiming for 0-1024, with 10 mph = about 1rpm swap cv 2 or 6 depending on direction
-      else {PWMdemand =  PWMdemand +CV[66]; }
-    }
-    else {if (dir){PWMdemand =  PWMdemand +CV[66]; } 
-      else {PWMdemand = PWMdemand +CV[95]; }
-    }
-    
-    if (PWMdemand>=1023) {PWMdemand=1023;}
-    if (PWMdemand<=0) {PWMdemand=0;}
-    if (STOPdemand) { PWMdemand=0; }
-    
-    //if (POWERON){
-    // DebugSprintfMsgSend( sprintf ( DebugMsg, "PWM motor speed:%d dir<%d>  PWM setting:%d (max from CV's:%d)",SpeedDemand,dir, PWMdemand,Max_Speed));
-    
-    //            }
-    if (bitRead(CV[29], 0)) {         // need to account for the  cv29 bit 0....
-      if (dir){
-	analogWrite(NodeMCUPinD[_LocoPWMDirPort] , PWMdemand);
-	digitalWrite (NodeMCUPinD[LocoPort] , false) ;
-#ifdef _SERVO_DEBUG
-	DebugSprintfMsgSend( sprintf ( DebugMsg, "1 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
+
+}else {
+// power off!
+   digitalWrite( NodeMCUPinD[LocoPort], false);
+   digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
+} 
 #endif
-      }
-      else{
-	analogWrite( NodeMCUPinD[LocoPort], PWMdemand);
-	digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
-#ifdef _SERVO_DEBUG
-	DebugSprintfMsgSend( sprintf ( DebugMsg, "2 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
-#endif
-      }}
-    else{  // inverted direction
-      if (dir){
-	analogWrite( NodeMCUPinD[LocoPort], PWMdemand);
-	digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
-#ifdef _SERVO_DEBUG
-	DebugSprintfMsgSend( sprintf ( DebugMsg, "3 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
-#endif
-      }
-      else{
-	analogWrite(NodeMCUPinD[_LocoPWMDirPort] , PWMdemand);
-	digitalWrite (NodeMCUPinD[LocoPort] , false) ;
-#ifdef _SERVO_DEBUG
-	DebugSprintfMsgSend( sprintf ( DebugMsg, "4 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
-#endif
-      }
-    }
-    
-    
-    
-  }else {
-    // power off!
-    digitalWrite( NodeMCUPinD[LocoPort], false);
-    digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
-  } 
-#endif
-  if (STOPdemand) {SpeedDemand=0;}
-  return SpeedDemand;
+if (STOPdemand) {SpeedDemand=0;}
+return SpeedDemand;
 }
 
 void ImmediateStop(void){
   uint16_t Speed;
-#ifdef _LOCO_SERVO_Driven_Port 
-#ifndef _LocoPWMDirPort
-  Speed= SetLocoMotorRC(_LOCO_SERVO_Driven_Port,0,0);
-#endif
-#ifdef _LocoPWMDirPort
-  Speed=SetLocoMotorPWM(_LOCO_SERVO_Driven_Port,0,0);// 
-#endif
-#endif
-}
+    #ifdef _LOCO_SERVO_Driven_Port 
+   #ifndef _LocoPWMDirPort
+               Speed= SetLocoMotorRC(_LOCO_SERVO_Driven_Port,0,0);
+   #endif
+   #ifdef _LocoPWMDirPort
+               Speed=SetLocoMotorPWM(_LOCO_SERVO_Driven_Port,0,0);// 
+   #endif
+   #endif
+  }
 
 
 void DoLocoMotor(void){  // uses Last_Speed_demand and Speed_demand to set servo or pwm including slowing and acceleration  calls SetChuffPeriodFromSpeed 
@@ -337,81 +306,82 @@ void DoLocoMotor(void){  // uses Last_Speed_demand and Speed_demand to set servo
   int steps;
   uint16_t SPEEDSET;
   bool Dir;
-  
+
 #ifdef _LOCO_SERVO_Driven_Port
-  Dir=bitRead(DIRF, 5 );
-  ServoOff_Delay_Until[_LOCO_SERVO_Driven_Port] = millis() + 10000;  // reset the servo off delay for the motor...
-  //  POWERON=true; //temporary whilst sorting code 
-  if (POWERON == false) { // Track power off, stop the motor, zero the motor servo immediately
-    ImmediateStop();    }
-  
-  else {   
-    // Power is ON 
-    if ((millis() >= Motor_Setting_Update_Time)&& ( (Last_Speed_demand != Speed_demand)||(Dir!= Last_Set_Dir))) { // do updates only at the required delay update rate or a change
-      Motor_Setting_Update_Time=millis() +100; // do update only at the required delay update rate
-      offset = Speed_demand-Last_Speed_demand;  // how far from the demand are we
-      
+   Dir=bitRead(DIRF, 5 );
+   ServoOff_Delay_Until[_LOCO_SERVO_Driven_Port] = millis() + 10000;  // reset the servo off delay for the motor...
+   // POWERON=true; //temporary whilst sorting code 
+   if (POWERON == false) { // Track power off, stop the motor, zero the motor servo immediately
+    ImmediateStop();
+   } else {   
+      // Power is ON 
+         if ((millis() >= Motor_Setting_Update_Time)&& ( (Last_Speed_demand != Speed_demand)||(Dir!= Last_Set_Dir))) { // do updates only at the required delay update rate or a change
+          Motor_Setting_Update_Time=millis() +100; // do update only at the required delay update rate
+          offset = Speed_demand-Last_Speed_demand;  // how far from the demand are we
+                 
       //speed up or decellerate?
-      if (abs(Speed_demand) >= abs(Last_Speed_demand)) {  // we are accelerating...
-	steps = CV[3];    }
-      else    {     steps = CV[4];    } // must be slowing down
+  if (abs(Speed_demand) >= abs(Last_Speed_demand)) {  // we are accelerating...
+      steps = CV[3];
+      } else {
+        steps = CV[4];
+      } // must be slowing down
+                    
+  if (abs(offset) >= abs(steps)) { // quite a way to go 
+                      if (offset>=0){ //Speed demand is higher than last demand
+                                    SPEEDSET=Last_Speed_demand+steps; }   //offset is now either the error or steps, whichever is less4
+                                     else {SPEEDSET=Last_Speed_demand-steps; }
+                       }
+                      else {SPEEDSET=Speed_demand; } //Offset smaller than difference so just set to demand
       
-      if (abs(offset) >= abs(steps)) { // quite a way to go 
-	if (offset>=0){ //Speed demand is higher than last demand
-	  SPEEDSET=Last_Speed_demand+steps; }   //offset is now either the error or steps, whichever is less4
-	else {SPEEDSET=Last_Speed_demand-steps; }
-      }
-      else {SPEEDSET=Speed_demand; } //Offset smaller than difference so just set to demand
-      
-      //    if ((Speed_demand==0)&&(offset<=0)&&(Dir!=Last_Set_Dir) ) {
-      //    Dir=!bitRead(DIRF, 5 );
-      //     DebugSprintfMsgSend( sprintf ( DebugMsg, "205 Inverting direction"));
-      //    } // if slowing to speed = 0, at reversing terminals dir has already been inverted by rocrail so invert to prevent rapid servo reversal
-      
-      
-      
-      // DebugSprintfMsgSend( sprintf ( DebugMsg, "Do Loco Motor Last speed:%d offset%d  New speed:%d Direction:%d",Last_Speed_demand,offset, SPEEDSET,Dir));
-      
-      //-----------------KICK START MOTOR
-      int SP;  // changed to a CV[65] related timer value 
-      int TI;
-      SP=40;
-      TI=CV[65];
-      if((Last_Speed_demand==0)&&(Speed_demand!=0)){// give a quick kick pulse to ensure starting from stopped. This works well with pwm, but not as well with servo
+    //    if ((Speed_demand==0)&&(offset<=0)&&(Dir!=Last_Set_Dir) ) {
+    //    Dir=!bitRead(DIRF, 5 );
+     //     DebugSprintfMsgSend( sprintf ( DebugMsg, "205 Inverting direction"));
+     //    } // if slowing to speed = 0, at reversing terminals dir has already been inverted by rocrail so invert to prevent rapid servo reversal
+       
+         
+       
+        // DebugSprintfMsgSend( sprintf ( DebugMsg, "Do Loco Motor Last speed:%d offset%d  New speed:%d Direction:%d",Last_Speed_demand,offset, SPEEDSET,Dir));
+
+//-----------------KICK START MOTOR
+int SP;  // changed to a CV[65] related timer value 
+int TI;
+SP=40;
+TI=CV[65];
+if((Last_Speed_demand==0)&&(Speed_demand!=0)){// give a quick kick pulse to ensure starting from stopped. This works well with pwm, but not as well with servo
+  #ifndef _LocoPWMDirPort
+                SP=SetLocoMotorRC(_LOCO_SERVO_Driven_Port,SP,Dir);
+                delay(TI*2); //wait for this long before going to "correct" speed, longer for servo than pwm
+                         //  DebugSprintfMsgSend( sprintf ( DebugMsg, "Kick start motor speed%d Time:%dms  Dir%d",SP,TI*2,Dir));
+            #endif
+#ifdef _LocoPWMDirPort
+                SP=SetLocoMotorPWM(_LOCO_SERVO_Driven_Port,SP,Dir);// 
+               delay(TI); //wait for this long before going to "correct" speed
+                       //      DebugSprintfMsgSend( sprintf ( DebugMsg, "Kick start motor speed%d Time:%dms  Dir%d",SP,TI,Dir));
+#endif
+                                           }
+//-end ----------------KICK START MOTOR
+uint16_t currentspeed;
+// do the motor drivers....        
 #ifndef _LocoPWMDirPort
-	SP=SetLocoMotorRC(_LOCO_SERVO_Driven_Port,SP,Dir);
-	delay(TI*2); //wait for this long before going to "correct" speed, longer for servo than pwm
-	//  DebugSprintfMsgSend( sprintf ( DebugMsg, "Kick start motor speed%d Time:%dms  Dir%d",SP,TI*2,Dir));
+               currentspeed = SetLocoMotorRC(_LOCO_SERVO_Driven_Port,SPEEDSET,Dir);
 #endif
 #ifdef _LocoPWMDirPort
-	SP=SetLocoMotorPWM(_LOCO_SERVO_Driven_Port,SP,Dir);// 
-	delay(TI); //wait for this long before going to "correct" speed
-	//      DebugSprintfMsgSend( sprintf ( DebugMsg, "Kick start motor speed%d Time:%dms  Dir%d",SP,TI,Dir));
+               currentspeed = SetLocoMotorPWM(_LOCO_SERVO_Driven_Port,SPEEDSET,Dir);// 
 #endif
-      }
-      //-end ----------------KICK START MOTOR
-      uint16_t currentspeed;
-      // do the motor drivers....        
-#ifndef _LocoPWMDirPort
-      currentspeed = SetLocoMotorRC(_LOCO_SERVO_Driven_Port,SPEEDSET,Dir);
-#endif
-#ifdef _LocoPWMDirPort
-      currentspeed = SetLocoMotorPWM(_LOCO_SERVO_Driven_Port,SPEEDSET,Dir);// 
-#endif
-      
+
 #ifdef _Audio      // sets up chuff period here so it works with acceleration etc
-      if(Last_Speed_demand != Speed_demand){
-	SetChuffPeriodFromSpeed(currentspeed);   }
+if(Last_Speed_demand != Speed_demand){
+ SetChuffPeriodFromSpeed(currentspeed);   }
 #endif //is audio
-      
-      Last_Speed_demand=SPEEDSET;  
-      Last_Set_Dir=Dir;          
-    } // update time
-    
-  } // else for the power on check
-  
-  
-  
+         
+         Last_Speed_demand=SPEEDSET;  
+         Last_Set_Dir=Dir;          
+        } // update time
+       
+      } // else for the power on check
+       
+   
+       
 #endif // is loco
 }
 
@@ -421,7 +391,7 @@ void READ_PORT( int i) {
   uint16_t senderADDR;
   if (((Pi02_Port_Settings_D[i] & 0x01) == 1) && ((Pi03_Setting_options[i] & 32) != 32))  { // only do this if this port is an "INPUT" and not a "SERVO"
     if (Debounce(i)) { // debounce is true if switch changed
-      
+
       if (((Pi02_Port_Settings_D[i] & 32) == 32)  && (digitalRead(NodeMCUPinD[i]) == 1)) {
         ButtonState[i] = !ButtonState[i]; // only change on one state..
       }
@@ -453,6 +423,7 @@ void READ_PORT( int i) {
 
 
 void ReadInputPorts() {
+
   // Check for port changes +++++++++++++++++++++++++++++++++++++
   if (!bReaderActive) {
     for (int i = 1 ; i <= 8; i++) {
@@ -589,18 +560,18 @@ void PortSetupReport() {
   int i;
 
 if (!bReaderActive) {
-#ifdef  _RFID
-  Serial.println("            Reader Absent ....all ports available");
-  Serial.println("");
-#endif 
-  //  NB port 0 as it has drive limitations (now used as signal led so included)
-  for (int i = 0 ; i <= 8; i++) {
-    PortMode(i);
+    #ifdef  _RFID
+        Serial.println("            Reader Absent ....all ports available");
+        Serial.println("");
+    #endif 
+    for (int i = 0 ; i <= 8; i++) {   //  NB port 0 as it has drive limitations (now used as signal led so included)
+      PortMode(i);
+    }
   }
- } else {
-  // only port 4 is user available.
-  PortMode(4);
- }
+  else {
+    // only port 4 is user available.
+    PortMode(4);
+  }
 }
 
 // moved here from  subroutines
