@@ -320,7 +320,7 @@ void setup() {
 
 
   // Serial.println("------------------------ Starting main loop ---------------");
-  FlashMessage(" ----------Entering Main Loop----------  ", 5, 150, 150);
+  FlashMessage((const char*)" ----------Entering Main Loop----------  ", 5, 150, 150);
      PrintTime("Start");
    CV[47]=131; 
    //Becoming obsolete, I am not using this feature now, but there are some message shows 
@@ -386,7 +386,7 @@ void loop() {
  // experiment in qos  
  /* if (oldconnects != connects) {
     oldconnects = connects;  char DebugMsg[120]; int cx; DebugSprintfMsgSend( sprintf ( DebugMsg, "Reconnected, total connects now:%d", connects);
-    DebugMsgSend("debug", DebugMsg);
+    DebugMsgSend((const char*)"debug", (const char*)DebugMsg);
   }
   */
   // Stop the motor if you lose connection  //
@@ -421,7 +421,7 @@ void loop() {
 #else
   //  ESP.reset(); // needed ??
     #endif
-    ResetWiFi = false; FlashMessage(" ++++++++ RESET AP Completed ++++++++ ", 10, 300, 300);
+    ResetWiFi = false; FlashMessage((const char*)" ++++++++ RESET AP Completed ++++++++ ", 10, 300, 300);
 
     ConnectionPrint();
   }
@@ -430,7 +430,7 @@ void loop() {
   // +++++++++++++commit any changed writes to the  Eprom and change the ports if they have been altered..
   if ((LoopTimer >= EPROM_Write_Delay) && (Data_Updated)) {              // commit EEPROM only when needed..
     Data_Updated = false;
-    DebugMsgSend("debug","Commiting EEPROM");
+    DebugMsgSend((const char*)"debug",(const char*)"Commiting EEPROM");
     Serial.println("Commiting EEPROM");
 
     DetachServo(-1);   // switches off ALL servos
