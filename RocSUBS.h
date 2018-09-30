@@ -5,7 +5,7 @@ uint8_t LastSetSpeed;
 uint32_t PingSendTime;
 boolean  PingReflected;
 
-#define NumberOfPorts  8
+#define NumberOfPorts  (8+2)
 
 
 uint8_t Value_for_PortD[NumberOfPorts + 1]; // ignore [0] so we can have 1...8
@@ -1174,14 +1174,14 @@ void ROC_CS() { //group 1
         sendMessage[7] = 1;             // len of data coming next
         bitWrite(sendMessage[8], 1, 1); // set 'Idle' ?
         bitWrite(sendMessage[8], 0, POWERON); //set bit 0 in status to power state
-        //     MQTTSend("rocnet/cs",sendMessage);        // sends status response something wrong with this
+        //     MQTTSend((const char*)"rocnet/cs",sendMessage);        // sends status response something wrong with this
         //     ROCSerialPrint(sendMessage);
         Message_Decoded = true;
         if (POWERON == false) {
-                DebugMsgSend("debug", " NODE OFF ");
+                DebugMsgSend((const char*)"debug", (const char*)" NODE OFF ");
                   }
         if (POWERON == true) {
-                DebugMsgSend("debug", " NODE ON ");
+                DebugMsgSend((const char*)"debug", (const char*)" NODE ON ");
                 Last_Speed_demand=0;
                 SetMotorSpeed(Speed_demand,DIRF);
                 //DoLocoMotor();
@@ -1210,7 +1210,7 @@ void ROC_CS() { //group 1
             if (CVNum == 8) { // set defaults when CV8=13
               if ((ROC_Data[5] == 13)) {
                 Serial.print("Setting Defaults");
-                DebugMsgSend("debug", "Setting EEPROM defaults");
+                DebugMsgSend((const char*)"debug", (const char*)"Setting EEPROM defaults");
                 SetDefaultSVs();
                 Data_Updated = true;
                 WriteEEPROM();
@@ -1259,7 +1259,7 @@ void ROC_CS() { //group 1
             Serial.print("Response:");
             Show_ROC_MSGS(sendMessage);
           }
-          MQTTSend("rocnet/ht", sendMessage);  // HOST not cs??
+          MQTTSend((const char*)"rocnet/ht", sendMessage);  // HOST not cs??
           //------------SEND CV ENDS------------
           //  Serial.println("------------ double check message content------------");
           //  ROCSerialPrint(sendMessage);
@@ -1417,7 +1417,7 @@ NodeClass= 0x02;
           } // nickname, length RN[3] ESP is default
           Serial.println("'");
           //delay(subIPL*2); //prevent simultaneous responses to identify query
-          MQTTSend("rocnet/dc", sendMessage);
+          MQTTSend((const char*)"rocnet/dc", sendMessage);
           delay(100); // leave plenty of time before sending next mqtt 
           DebugSprintfMsgSend( sprintf ( DebugMsg, "Responding to Identify "));
           // ROCSerialPrint(sendMessage);
@@ -1455,7 +1455,7 @@ NodeClass= 0x02;
     case 11:  {  //SHOW
         Message_Decoded = true; // we understand these even if they are not for us
         if ( (ROC_recipient ==   RocNodeID) || (    ROC_recipient ==   0)) {
-          FlashMessage("   SHOW LED    ", 10, 500, 100);  // hold the LED on for 800ms, off for 800ms, 6 times!
+          FlashMessage((const char*)"   SHOW LED    ", 10, 500, 100);  // hold the LED on for 800ms, off for 800ms, 6 times!
         }
 
         Message_Decoded = true;
@@ -1495,7 +1495,7 @@ void ROC_Programming() { // GROUP  5
             //Serial.print(port);
             TEMP = TEMP + 1;
           }
-          MQTTSend("rocnet/ps", sendMessage);
+          MQTTSend((const char*)"rocnet/ps", sendMessage);
           //ROCSerialPrint(sendMessage);
         }      Message_Decoded = true;
       }
@@ -1616,7 +1616,7 @@ RN[27]=0; //050 L  set 1 for "0x50" 3 for 0x50,0x51 etc..
           sendMessage[7+i] = RN[14+i];
          }
       
-          MQTTSend("rocnet/ps", sendMessage);
+          MQTTSend((const char*)"rocnet/ps", sendMessage);
          // DebugMsgSend("debug", " sending (line 953)");
          //     ROCSerialPrint(sendMessage);
 
@@ -1697,7 +1697,7 @@ RN[27]=0; //050 L  set 1 for "0x50" 3 for 0x50,0x51 etc..
             //     Serial.print(port);
             TEMP = TEMP + 1;
           }
-          MQTTSend("rocnet/ps", sendMessage);
+          MQTTSend((const char*)"rocnet/ps", sendMessage);
           //ROCSerialPrint(sendMessage);
         } Message_Decoded = true;
       }
@@ -1763,7 +1763,7 @@ RN[27]=0; //050 L  set 1 for "0x50" 3 for 0x50,0x51 etc..
             Serial.print(7 + i);
             port = port + 1;
           }
-          MQTTSend("rocnet/ps", sendMessage);
+          MQTTSend((const char*)"rocnet/ps", sendMessage);
           Serial.println(" end");
           // ROCSerialPrint(sendMessage);
         }   Message_Decoded = true;
@@ -1804,7 +1804,7 @@ RN[27]=0; //050 L  set 1 for "0x50" 3 for 0x50,0x51 etc..
     case 18: { //set channel#  valueH  valueL (Pi03 settings)
         Message_Decoded = true; // we understand these even if they are not for us
         if ( (ROC_recipient ==   RocNodeID) || (    ROC_recipient ==   0)) {
-          uint16_t DesiredPos;
+          uint16_t DesiredPos=150;
 
           PrintTime( " Single Channel WRITE Ch:"); //channel# valueH  valueL
           Serial.print(ROC_Data[1]);
@@ -1863,7 +1863,7 @@ void ROC_Outputs() { //group 9
                                                     }   
           if ((Pi03_Setting_options[ROC_Data[4]] & 32) == 32) {   //SERVO....To address a channel instead of a port the port type servo must be set on the interface tab of switches and outputs
           // DebugSprintfMsgSend( sprintf ( DebugMsg, "Setting Output %d (SERVO) to %d", ROC_Data[4], STATE)); 
-          // DebugMsgSend("debug", DebugMsg);
+          // DebugMsgSend((const char*)"debug", (const char*)DebugMsg);
            
             ButtonState[ROC_Data[4]] = STATE;
             SDemand[ROC_Data[4]] = servoLR(STATE, ROC_Data[4]);// just setting sdemand allows "servos" to drive the servo to the desired position 
@@ -1937,8 +1937,8 @@ void SendPortChange(int RNID, boolean ST, uint8_t i) {
   sendMessage[10] = ST;             sendMessage[11] = i; //port
   char Message[80];
   snprintf(Message, sizeof(Message), "*Sensor Seen&Sent  Address:%d state:%d", i, ST);
-  DebugMsgSend("debug", Message);
-  MQTTSendQ1("rocnet/sr", sendMessage);
+  DebugMsgSend((const char*)"debug", (const char*)Message);
+  MQTTSendQ1((const char*)"rocnet/sr", sendMessage);
 
 }
 
@@ -1993,7 +1993,7 @@ void DoRocNet() {
   }     // end message length decode
   
   if   ((!Message_Decoded) && (Message_Length >= 1) && ((CV[47] & 0x40) == 0x40)) {
-    DebugMsgSend("debug", " Message not understood.. see serial output");
+    DebugMsgSend((const char *)"debug", (const char *)" Message not understood.. see serial output");
      }  // print / send things not decoded if debugs are on
    if   ((!Message_Decoded)&& (Message_Length >= 1 )) {
       Serial.print(" MSG Not Understood<"); Serial.print(Show_ROC_MSG()); Serial.println(">");

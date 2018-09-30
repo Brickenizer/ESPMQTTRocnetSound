@@ -6,7 +6,6 @@
 
 
 
-// void DebugMsgSend (char* topic, char* payload) ;
+// void DebugMsgSend (const char* topic, const char* payload) ;
 //  void DebugSprintfMsgSend(char* topic, int CX);
   #endif
-

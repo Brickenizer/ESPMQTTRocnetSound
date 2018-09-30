@@ -1,19 +1,21 @@
 
+#include <Arduino.h>
 
 #include "Chuff.h"
 
 
-  #include "AudioFileSourceSPIFFS.h"
-  #include "AudioGeneratorWAV.h"
-  #include "AudioOutputMixer.h"
+#include "AudioFileSourceSPIFFS.h"
+#include "AudioGeneratorWAV.h"
+#include "AudioOutputMixer.h"
   
 #include "Directives.h"
 #ifdef _AudioDAC
-  #include "AudioOutputI2S.h"
+#include "AudioOutputI2S.h"
 #endif
+
 #ifdef _AudioNoDAC
-  #include "AudioOutputI2SNoDAC.h"
-  #endif 
+#include "AudioOutputI2SNoDAC.h"
+#endif 
 
 
 
@@ -164,8 +166,6 @@ void BeginPlay(int Channel,const char *wavfilename, uint8_t CVVolume){
 }
 void BeginPlayND(int Channel,const char *wavfilename, uint8_t CVVolume){ // no deletes version
 
-  uint32_t NOW;
-  NOW=micros();
   float Volume;
  Volume=(float)CVVolume*CV[100]/16384;
  

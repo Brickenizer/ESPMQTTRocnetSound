@@ -1,6 +1,7 @@
-#include <Arduino.h>
-#include "Subroutines.h"
-#include "Directives.h"
+#include "Subroutines.h";
+#include <Arduino.h> //needed 
+  #include "Directives.h";
+
 
 #define RN_PACKET_NETID  0
 #define RN_PACKET_RCPTH  1
@@ -11,7 +12,7 @@
 #define RN_PACKET_ACTION 6
 #define RN_PACKET_LEN    7
 #define UID_LEN         7
-
+//#include "Globals.h";
 extern uint8_t hrs;
 extern uint8_t mins;
 extern uint8_t secs;  
@@ -139,7 +140,7 @@ void Show_MSG() {
 }
 extern void DebugSprintfMsgSend(int CX);
 extern char DebugMsg[127];
-void FlashMessage (char* msg, int Repeats, int ON, int Off) {
+void FlashMessage (const char* msg, int Repeats, int ON, int Off) {
   Serial.println(msg);
   DebugSprintfMsgSend( sprintf ( DebugMsg, "Flashing MSG"));
   for (int i = 0; i <= Repeats; i++) {

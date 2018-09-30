@@ -14,6 +14,7 @@ PubSubClient client(espClient);
 
 extern IPAddress mosquitto;
 
+//#include "Globals.h";
 extern uint16_t RocNodeID;
 extern void PrintTime(String MSG) ;
 extern void WriteEEPROM(void);
@@ -112,7 +113,7 @@ void MQTTFetch (char* topic, byte* payload, unsigned int Length) { //replaces ro
   }
 }                                                 //*Sensor Seen Node:%d Address:%d state:%d
 
-void MQTTSendQ1 (char* topic, uint8_t * payload) { //QoS1 version
+void MQTTSendQ1 (const char* topic, uint8_t * payload) { //QoS1 version
   uint8_t Length;
   digitalWrite (NodeMCUPinD[SignalLed], HIGH) ;  /// turn On
   Length = payload[7] + 8;
@@ -140,7 +141,7 @@ void testConnection  (int Number) {
   client.publish("PiNg", id, 2); //,strlen(payload));//send as qos 0..
 }
 
-void MQTTSend (char* topic, uint8_t * payload) { //replaces rocsend
+void MQTTSend (const char* topic, uint8_t * payload) { //replaces rocsend
   uint8_t Length;
   digitalWrite (NodeMCUPinD[SignalLed], HIGH) ;  /// turn On
   Length = payload[7] + 8;
@@ -176,7 +177,7 @@ void MQTT_Loop(void){
     client.loop(); //gets wifi messages etc..
 }
 extern uint16_t MyLocoAddr ;
-void DebugMsgSend (char* topic, char* payload) { // use with mosquitto_sub -h 127.0.0.1 -i "CMD_Prompt" -t debug -q 0
+void DebugMsgSend (const char* topic, const char* payload) { // use with mosquitto_sub -h 127.0.0.1 -i "CMD_Prompt" -t debug -q 0
   char DebugMsgLocal[127];
     char DebugMsgTemp[127];
   int cx;
@@ -213,8 +214,11 @@ if ((hrs==0)&&(mins==0)){// not Synchronised yet..
  }
 
 
-  void DebugSprintfMsgSend(int CX){ // allows use of Sprintf function in the "cx" location
-  DebugMsgSend ("debug", DebugMsg);
+  void DebugSprintfMsgSend(int CX){
+  DebugMsgSend ((const char*)"debug", (const char*)DebugMsg);
+  Serial.print(CX);
+  Serial.print(" debug ");
+  Serial.println(DebugMsg);
   delay(5);
 }
 
@@ -245,7 +249,7 @@ void reconnect() {
       // can advise this node is connected now:
        DebugSprintfMsgSend( sprintf ( DebugMsg, "%s Connected at:%d.%d.%d.%d",ClientName,ip0,ip1,subIPH,subIPL));
       
-      //FlashMessage(" ------Connected to MQQT---------",1,400,100);
+      //FlashMessage((const char*)" ------Connected to MQQT---------",1,400,100);
       // ... and now subscribe to topics  http://wiki.rocrail.net/doku.php?id=rocnet:rocnet-prot-en#groups
 
       client.subscribe("rocnet/lc", 1 ); //loco
@@ -276,7 +280,7 @@ void reconnect() {
     delay(100);
     client.setServer(mosquitto, 1883);   // Hard set port at 1833
       Serial.println(" try again ...");
-      //FlashMessage(".... Failed connect to MQTT.. attempting reconnect",4,250,250);
+      //FlashMessage((const char*)".... Failed connect to MQTT.. attempting reconnect",4,250,250);
       // Wait   before retrying  // perhaps add flashing here so when it stops we are connected?
       delay(100);
       digitalWrite (NodeMCUPinD[SignalLed] , SignalOFF) ; ///   turn OFF

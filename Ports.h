@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "pin_defines.h"
 boolean ButtonState[12] ;
 int lastButtonState[12];
@@ -11,12 +12,8 @@ uint32_t PortTimingDelay[12];
 uint8_t Motor_Speed = 0 ;
 uint32_t Motor_Setting_Update_Time;
 
-
 uint16_t ServoLastPos[10];
 uint32_t WaitUntill;
-
-
-
 
 //servo settings   
 int SDemand[12];
@@ -205,7 +202,7 @@ uint16_t SetLocoMotorPWM(int LocoPort, uint16_t SpeedDemand,bool dir){  //PWM Sp
 uint16_t PWMdemand;
 uint16_t MinSpeed;
 uint16_t AdditionalSpeedDemand;
-bool STOPdemand;
+bool STOPdemand=false;
 uint16_t Max_Speed;
 #ifdef _LocoPWMDirPort
 Max_Speed= 3+((1023-(CV[2]*10)+CV[66])/CV[5]);  // fwd trim is 66
@@ -236,42 +233,49 @@ else {if (dir){PWMdemand =  PWMdemand +CV[66]; }
     else {PWMdemand = PWMdemand +CV[95]; }
     }
 
-if (PWMdemand>=1023) {PWMdemand=1023;}
-if (PWMdemand<=0) {PWMdemand=0;}
-if (STOPdemand) { PWMdemand=0; }
+if (PWMdemand>=1023) 
+{
+  PWMdemand=1023;
+}
+if (PWMdemand<=0) {
+  PWMdemand=0;
+}
+if (STOPdemand) {
+  PWMdemand=0; 
+  }
 
- //if (POWERON){
-         // DebugSprintfMsgSend( sprintf ( DebugMsg, "PWM motor speed:%d dir<%d>  PWM setting:%d (max from CV's:%d)",SpeedDemand,dir, PWMdemand,Max_Speed));
-         
-  //            }
+// if (POWERON){
+//  DebugSprintfMsgSend( sprintf ( DebugMsg, "PWM motor speed:%d dir<%d>  PWM setting:%d (max from CV's:%d)",
+//         SpeedDemand,dir, PWMdemand,Max_Speed));       
+// }
 if (bitRead(CV[29], 0)) {         // need to account for the  cv29 bit 0....
-if (dir){
-analogWrite(NodeMCUPinD[_LocoPWMDirPort] , PWMdemand);
-digitalWrite (NodeMCUPinD[LocoPort] , false) ;
+  if (dir){
+    analogWrite(NodeMCUPinD[_LocoPWMDirPort] , PWMdemand);
+    digitalWrite (NodeMCUPinD[LocoPort] , false) ;
 #ifdef _SERVO_DEBUG
-DebugSprintfMsgSend( sprintf ( DebugMsg, "1 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
+    DebugSprintfMsgSend( sprintf ( DebugMsg, "1 PWM motor speed:%d dir<%d>  PWM setting:%d  ",
+      SpeedDemand,dir, PWMdemand));
 #endif
 }
 else{
-analogWrite( NodeMCUPinD[LocoPort], PWMdemand);
-digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
+  analogWrite( NodeMCUPinD[LocoPort], PWMdemand);
+  digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
 #ifdef _SERVO_DEBUG
-DebugSprintfMsgSend( sprintf ( DebugMsg, "2 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
-#endif
-}}
-else{  // inverted direction
-if (dir){
-analogWrite( NodeMCUPinD[LocoPort], PWMdemand);
-digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
-#ifdef _SERVO_DEBUG
-DebugSprintfMsgSend( sprintf ( DebugMsg, "3 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
+  DebugSprintfMsgSend( sprintf ( DebugMsg, "2 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
 #endif
 }
-else{
-analogWrite(NodeMCUPinD[_LocoPWMDirPort] , PWMdemand);
-digitalWrite (NodeMCUPinD[LocoPort] , false) ;
+} else {  // inverted direction
+  if (dir){
+    analogWrite( NodeMCUPinD[LocoPort], PWMdemand);
+    digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
 #ifdef _SERVO_DEBUG
-DebugSprintfMsgSend( sprintf ( DebugMsg, "4 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
+    DebugSprintfMsgSend( sprintf ( DebugMsg, "3 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
+#endif
+} else {
+  analogWrite(NodeMCUPinD[_LocoPWMDirPort] , PWMdemand);
+  digitalWrite (NodeMCUPinD[LocoPort] , false) ;
+#ifdef _SERVO_DEBUG
+  DebugSprintfMsgSend( sprintf ( DebugMsg, "4 PWM motor speed:%d dir<%d>  PWM setting:%d  ",SpeedDemand,dir, PWMdemand));
 #endif
 }
 }
@@ -284,7 +288,10 @@ DebugSprintfMsgSend( sprintf ( DebugMsg, "4 PWM motor speed:%d dir<%d>  PWM sett
    digitalWrite (NodeMCUPinD[_LocoPWMDirPort] , false) ;
 } 
 #endif
-if (STOPdemand) {SpeedDemand=0;}
+if (STOPdemand) 
+{
+  SpeedDemand=0;
+}
 return SpeedDemand;
 }
 
@@ -298,6 +305,8 @@ void ImmediateStop(void){
                Speed=SetLocoMotorPWM(_LOCO_SERVO_Driven_Port,0,0);// 
    #endif
    #endif
+   Serial.print("Speed = ");
+   Serial.println(Speed);
   }
 
 
@@ -443,110 +452,115 @@ void PortMode(int i) {
   Serial.print (i);
   switch (i) {
 #ifdef _LOCO_SERVO_Driven_Port
-   case _LOCO_SERVO_Driven_Port:
-                      Serial.print(F(" LOCO MOTOR "));
-                      Pi02_Port_Settings_D[i] = 0;
-                      Pi03_Setting_options[i] = 42;
-                      hardset =true;
-   #ifdef _LocoPWMDirPort
-                      Serial.print(F(" PWM "));
-                      Pi03_Setting_options[i] = 128;
-   #endif
-   break;
+    case _LOCO_SERVO_Driven_Port:
+    Serial.print(F(" LOCO MOTOR "));
+    Pi02_Port_Settings_D[i] = 0;
+    Pi03_Setting_options[i] = 42;
+    hardset =true;
+    #ifdef _LocoPWMDirPort
+    Serial.print(F(" PWM "));
+    Pi03_Setting_options[i] = 128;
+    #endif
+    break;
 #endif
 
 #ifdef _LocoPWMDirPort
-   case _LocoPWMDirPort:
-                      Serial.print(F(" LOCO PWM dir "));
-                      pinMode(NodeMCUPinD[_LocoPWMDirPort], OUTPUT);
-                      Pi02_Port_Settings_D[i] = Pi02_Port_Settings_D[i] & 0xFE; 
-                      hardset =true;
-                      break;
+    case _LocoPWMDirPort:
+    Serial.print(F(" LOCO PWM dir "));
+    pinMode(NodeMCUPinD[_LocoPWMDirPort], OUTPUT);
+    Pi02_Port_Settings_D[i] = Pi02_Port_Settings_D[i] & 0xFE; 
+    hardset =true;
+    break;
 #endif
 
-  case SignalLed:  
-                      Serial.print(F(" is SignalLED  Output "));
-                      pinMode(NodeMCUPinD[SignalLed], OUTPUT);
-                      Pi02_Port_Settings_D[i] = Pi02_Port_Settings_D[i] & 0xFE;  
-                      hardset =true;
-                      break;
+    case SignalLed:  
+    Serial.print(F(" is SignalLED  Output "));
+    pinMode(NodeMCUPinD[SignalLed], OUTPUT);
+    Pi02_Port_Settings_D[i] = Pi02_Port_Settings_D[i] & 0xFE;  
+    hardset =true;
+    break;
                       
 #ifdef _LOCO_SERVO_Driven_Port  
-  case FRONTLight:
-                      Serial.print (F(" is FRONTLight  Output "));
-                      pinMode(NodeMCUPinD[FRONTLight], OUTPUT);
-                      Pi02_Port_Settings_D[i] = Pi02_Port_Settings_D[i] & 0xFE; 
-                      hardset =true;
-                      break;
-  case BACKLight:
-                      Serial.print (F(" is BACKLight  Output "));
-                      pinMode(NodeMCUPinD[BACKLight], OUTPUT);
-                      Pi02_Port_Settings_D[i] = Pi02_Port_Settings_D[i] & 0xFE; 
-                      hardset =true;
-                      break;
+    case FRONTLight:
+    Serial.print (F(" is FRONTLight  Output "));
+    pinMode(NodeMCUPinD[FRONTLight], OUTPUT);
+    Pi02_Port_Settings_D[i] = Pi02_Port_Settings_D[i] & 0xFE; 
+    hardset =true;
+    break;
+    
+    case BACKLight:
+    Serial.print (F(" is BACKLight  Output "));
+    pinMode(NodeMCUPinD[BACKLight], OUTPUT);
+    Pi02_Port_Settings_D[i] = Pi02_Port_Settings_D[i] & 0xFE; 
+    hardset =true;
+    break;
 #endif                      
- #ifdef SteamOutputPin
-  case SteamOutputPin:
-                     Serial.print (F(" is SteamPulse  Output "));
-                      pinMode(NodeMCUPinD[SteamOutputPin], OUTPUT);
-                       Pi03_Setting_options[i] = 0;
-                      Pi02_Port_Settings_D[i] = Pi02_Port_Settings_D[i] & 0xFE; 
-                      hardset =true;
-                      break;
 
+#ifdef SteamOutputPin
+    case SteamOutputPin:
+    Serial.print (F(" is SteamPulse  Output "));
+    pinMode(NodeMCUPinD[SteamOutputPin], OUTPUT);
+    Pi03_Setting_options[i] = 0;
+    Pi02_Port_Settings_D[i] = Pi02_Port_Settings_D[i] & 0xFE; 
+    hardset =true;
+    break;
  #endif
 
                       
 #ifdef _Audio  
 #ifdef _AudioDAC  
-  case I2SDAC_LRC:Serial.print (F(" is LRC used by AudioDAC"));
-                      Pi02_Port_Settings_D[i] = 0; Pi03_Setting_options[i] = 0;
-                             hardset =true;
-                      break;
+    case I2SDAC_LRC:Serial.print (F(" is LRC used by AudioDAC"));
+    Pi02_Port_Settings_D[i] = 0; Pi03_Setting_options[i] = 0;
+    hardset =true;
+    break;
                     
   case I2SDAC_CLK:Serial.print (F(" is CLK used by AudioDAC"));
-                      Pi02_Port_Settings_D[i] = 0; Pi03_Setting_options[i] = 0;
-                             hardset =true;
-                      break;
+  Pi02_Port_Settings_D[i] = 0; Pi03_Setting_options[i] = 0;
+  hardset =true;
+  break;
 #endif                      
-  case I2SDAC_DIN:Serial.print (F(" is DIN used by Audio"));
-                      Pi02_Port_Settings_D[i] = 0; Pi03_Setting_options[i] = 0;
-                             hardset =true;
-                      break;
-                      #endif
-                      #ifdef _AudioDAC
 
+  case I2SDAC_DIN:
+  Serial.print (F(" is DIN used by Audio"));
+  Pi02_Port_Settings_D[i] = 0; Pi03_Setting_options[i] = 0;
+  hardset =true;
+  break;
 #endif
+
   default:  // set according to Pi03_Setting_options[i] and Pi02_Port_Settings_D[i]
     
     //in 1 out 0
-    if ((Pi03_Setting_options[i] & 32) == 32) {
+    if ((Pi03_Setting_options[i] & 32) == 32) 
+    {
       Serial.print (F(" is Servo"));
       pinMode(NodeMCUPinD[i], OUTPUT);
-      Pi02_Port_Settings_D[i] = bitClear (Pi02_Port_Settings_D[i], 0 );
-                    }
-                    else{
+      Pi02_Port_Settings_D[i] = bitClear( Pi02_Port_Settings_D[i], 0 );
+    } else{
       if ((Pi03_Setting_options[i] & 128) == 128) {
-      Serial.print (F(" is PWM"));
-      pinMode(NodeMCUPinD[i], OUTPUT);
-      Pi02_Port_Settings_D[i] = bitClear (Pi02_Port_Settings_D[i], 0 );
-                    }}
+        Serial.print (F(" is PWM"));
+        pinMode(NodeMCUPinD[i], OUTPUT);
+        Pi02_Port_Settings_D[i] = bitClear( Pi02_Port_Settings_D[i], 0 );
+      }
+    }
                     
-    
-      if ((Pi02_Port_Settings_D[i] & 0x01) == 1) {
+    if ((Pi02_Port_Settings_D[i] & 0x01) == 1) {
         pinMode(NodeMCUPinD[i], INPUT_PULLUP);
         Serial.print (F(" is Input with pullup"));
-      }
-      if ((Pi02_Port_Settings_D[i] & 0x01) == 0) {
+    }
+    
+    if ((Pi02_Port_Settings_D[i] & 0x01) == 0) {
         pinMode(NodeMCUPinD[i], OUTPUT);
         Serial.print (F(" Output"));
-         }
-    
+    }
     break;           
   }//end of switch
-    if ((Pi02_Port_Settings_D[i]&128)==128) {Serial.print (F(" {flashing} "));}
-    // TODO would be good to add more explicit identification of what ports are set to with different channel options etc..
-    if (hardset) {Serial.print(F( "(FIXED)"));}
+  if ((Pi02_Port_Settings_D[i]&128)==128) {
+    Serial.print (F(" {flashing} "));
+  }
+  // TODO would be good to add more explicit identification of what ports are set to with different channel options etc..
+  if (hardset) {
+    Serial.print(F( "(FIXED)"));
+  }
     
           Serial.print (F(" Pi02 PortType :"));
           Serial.print (Pi02_Port_Settings_D[i]);
@@ -591,7 +605,7 @@ boolean Debounce (int i) {  // Tests for inputs having changed,
 //below here was x2 in subroutines
 
 int FlashHL(int state, int port) {
-  int value;
+  int value = 0;
   if (state == 0) {
     value = (Pi03_Setting_offposH[port] * 256) + Pi03_Setting_offposL[port];
   }
@@ -684,18 +698,23 @@ void DetachServo(int i) {
 }
 
 void DETACH() {
- int i;
- for (int i = 1 ; i <= 8; i++) { //up to 8 servos..  no check here for loco servo!. 
-    if ( (millis() >= ServoOff_Delay_Until[i])  && ( (Pi03_Setting_options[i] & 32) == 32) ) { // double check its actually a servo !!, as this is called from two places{
-        ServoOff_Delay_Until[i]=millis()+OneDay;  // set one day ahead as a simple way to avoid setting it again next time around... Moving the servo will reset it to millis anyway
-      
-        Serial.printf("\n Switching OFF Servo:%i ",i);
-        //Serial.print(" Switching OFF Servo:");
-        //Serial.println(i);
-        DetachServo(i);
-                                                                                       }
-                                  }
-             }
+  for (int i = 1 ; i <= 8; i++) { 
+    //up to 8 servos..  no check here for loco servo!. 
+    if ( (millis() >= ServoOff_Delay_Until[i]) &&
+         ( (Pi03_Setting_options[i] & 32) == 32) ) {
+      // double check its actually a servo !!, 
+      // as this is called from two places
+      // set one day ahead as a simple way to 
+      // avoid setting it again next time around... 
+      // Moving the servo will reset it to millis anyway
+      ServoOff_Delay_Until[i]=millis()+OneDay;
+      Serial.printf("\n Switching OFF Servo:%i ",i);
+      //Serial.print(" Switching OFF Servo:");
+      //Serial.println(i);
+      DetachServo(i);
+    }
+  }
+}
 
 
 
@@ -703,7 +722,7 @@ void DETACH() {
 
 void SetServo( int i, uint16_t value) { // uses 0-180
   //long MotorSpeed;
-//  uint16_t SavedValue;
+  //  uint16_t SavedValue;
   
   if ((Pi03_Setting_options[i] & 32) == 32) { // double check, as this is called from two places
     ServoLastPos[i]=value;
@@ -711,8 +730,8 @@ void SetServo( int i, uint16_t value) { // uses 0-180
 //#ifdef _Audio      // sets chuff period here?
 // #ifdef _LOCO_SERVO_Driven_Port // loco motor 
 //   if ((i==_LOCO_SERVO_Driven_Port)) {
- //          SetChuffPeriodFromServoPos(value); not needed anymore, set from speed...in loco motor 
- //                  }  // i==_LOCO_SERVO_Driven_Port
+//          SetChuffPeriodFromServoPos(value); not needed anymore, set from speed...in loco motor 
+//                  }  // i==_LOCO_SERVO_Driven_Port
 //  #endif // is loco      
 //#endif //is audio
     switch (i) {
