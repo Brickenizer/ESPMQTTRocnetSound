@@ -15,7 +15,7 @@ void BeginPlay(int Channel,const char *wavfilename, uint8_t CVVolume);
 void BeginPlayND(int Channel,const char *wavfilename, uint8_t CVVolume); // no deletes version
 bool TimeToChuff(uint32_t TimeNow);
 void Chuff (String ChuffChoice);
-void AudioLoop(int32_t TimeNow);
+void AudioLoop();
 bool SoundEffectPlaying(void);
 void SoundEffects(void); 
 

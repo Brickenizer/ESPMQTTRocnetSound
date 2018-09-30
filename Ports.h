@@ -20,7 +20,7 @@ int SDemand[12];
 
 //uint32_t servoDelay[12];
 //int SloopDelay = 2;  //100 is about 4 seconds with 50ms delay in loop
-int ServoOff_Delay_Until[12];
+unsigned long ServoOff_Delay_Until[12];
 
 
 //Servo Loco_LOCO_SERVO_Driven_Port;  
@@ -534,12 +534,14 @@ void PortMode(int i) {
     {
       Serial.print (F(" is Servo"));
       pinMode(NodeMCUPinD[i], OUTPUT);
-      Pi02_Port_Settings_D[i] = bitClear( Pi02_Port_Settings_D[i], 0 );
+      //Pi02_Port_Settings_D[i] = 
+      bitClear( Pi02_Port_Settings_D[i], 0 );
     } else{
       if ((Pi03_Setting_options[i] & 128) == 128) {
         Serial.print (F(" is PWM"));
         pinMode(NodeMCUPinD[i], OUTPUT);
-        Pi02_Port_Settings_D[i] = bitClear( Pi02_Port_Settings_D[i], 0 );
+        //Pi02_Port_Settings_D[i] = 
+        bitClear( Pi02_Port_Settings_D[i], 0 );
       }
     }
                     

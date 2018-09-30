@@ -85,9 +85,9 @@ void SetSoundEffect(uint8_t Data1,uint8_t Data2,uint8_t Data3){
 void SetUpAudio(uint32_t TimeNow){ 
 #ifdef _Audio
   Serial.printf("-- Sound System Initiating -- \n");
- #ifdef _AudioDAC
+  #ifdef _AudioDAC
   out = new AudioOutputI2S();
-   Serial.printf("-- Using I2S DAC -- \n");
+  Serial.printf("-- Using I2S DAC -- \n");
   #endif
  #ifdef _AudioNoDAC
   out = new AudioOutputI2SNoDAC(); Serial.printf("-- Using I2S No DAC -- \n");
@@ -196,11 +196,18 @@ void BeginPlayND(int Channel,const char *wavfilename, uint8_t CVVolume){ // no d
 
 
 bool TimeToChuff(uint32_t TimeNow){
-  
-   if (ChuffPeriod>=3500){return false;} // switches off chuff at very low or stopped (4000ms )speeds
-   if (TimeNow<=(LastChuff+ChuffPeriod)){return false;}
-    else {LastChuff=TimeNow; return true;}
-    }
+    // switches off chuff at very low or stopped (4000ms )speeds
+   if (ChuffPeriod>=3500){
+      return false;
+    } 
+   long tmp_val = (LastChuff + ChuffPeriod) - TimeNow;
+   if (0<=tmp_val){
+    return false;
+   } else {
+      LastChuff=TimeNow;
+      return true;
+   }
+}
     
 extern bool POWERON;
 void Chuff (String ChuffChoice){
@@ -235,19 +242,33 @@ void Chuff (String ChuffChoice){
 #endif
 }
 
-void AudioLoop(int32_t TimeNow){
+void AudioLoop(){
    
  #ifdef SteamOutputPin
-              if ((SteamOnStarted+SteamPulseDuration)<=TimeNow){digitalWrite (NodeMCUPinD[SteamOutputPin],LOW);}
+              if ((SteamOnStarted+SteamPulseDuration)<=millis()){
+                digitalWrite (NodeMCUPinD[SteamOutputPin],LOW);
+              }
  #endif 
    
    if (wav[0]->isRunning()) { 
-    if (!wav[0]->loop()) {  Serial.printf("S0\n");wav[0]->stop(); stub[0]->stop();}//    Running[0]=false;Serial.printf("stopping 0\n"); }
-  }
+    if (!wav[0]->loop()) {
+      Serial.printf("S0\n");
+      wav[0]->stop();
+      stub[0]->stop();
+      }
+     // Running[0]=false;
+     // Serial.printf("stopping 0\n"); }
+    }
 
   if (wav[1]->isRunning()) {
-      if (!wav[1]->loop()) { Serial.printf("S1\n");wav[1]->stop(); stub[1]->stop();PlayingSoundEffect=false;}// Running[1]=false;Serial.printf("stopping 1\n");}
-                           }
+      if (!wav[1]->loop()) {
+        Serial.printf("S1\n");
+        wav[1]->stop();
+        stub[1]->stop();
+        PlayingSoundEffect=false;
+        }
+        // Running[1]=false;Serial.printf("stopping 1\n");}
+      }
  }
              
   bool SoundEffectPlaying(void){

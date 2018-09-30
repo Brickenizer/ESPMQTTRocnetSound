@@ -369,7 +369,7 @@ void loop() {
     LoopTimer = millis(); // idea is to use LoopTimer instead of millis to ensure synchronous behaviour in loop
 
 #ifdef _Audio
-  AudioLoop(LoopTimer);
+  AudioLoop();
   SoundEffects();
   if (TimeToChuff(LoopTimer)){ Chuff("/BBCH");} // select chuff sound samples "/BBCH" is my best sounding set.. or try "/ivor_" or "/Fenchurch"  
 #endif
