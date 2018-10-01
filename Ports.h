@@ -23,7 +23,7 @@ int SDemand[12];
 unsigned long ServoOff_Delay_Until[12];
 
 
-//Servo LocoDrivePort;  
+//Servo Loco_LocoDrivePort;  
 // create servo object to control a servo  
 // servo 0 in ver107 on to be loco, but connected on pin D1. 
 Servo myservo1;  // create servo object to control a servo

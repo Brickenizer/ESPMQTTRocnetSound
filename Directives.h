@@ -15,10 +15,7 @@
 
 //--- These are set depending on the two defines above..
 // I could probably be cleverer with this set!! but they work
-#ifdef _AudioNoDAC
-#define _Audio // sets some common audio compiler stuff
-#endif
-#ifdef _AudioDAC
+#if defined _AudioNoDAC || defined _AudioDAC
 #define _Audio // sets some common audio compiler stuff
 #endif
 
