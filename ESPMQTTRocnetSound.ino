@@ -1,32 +1,32 @@
 //Compiler Directives and code options are in Directives.h
-
 #include "Directives.h"
 
 //----DO NOT FORGET TO UPLOAD THE SKETCH DATA ---
-//   To check the code is working, in command prompt, set up a MQTT "debug" monitor: (e.g. For MQTT broker at 192.18.0.18) "CD C:\mosquitto  mosquitto_sub -h 192.168.0.18 -i "CMD_Prompt" -t debug -q 0" 
+//   To check the code is working,
+// in command prompt, set up a MQTT "debug" monitor: (e.g. For MQTT broker at 192.18.0.18)
+// "CD C:\mosquitto  mosquitto_sub -h 192.168.0.18 -i "CMD_Prompt" -t debug -q 0" 
 
 #include <DNSServer.h>
 #include <ESP8266WebServer.h>
 #include <ArduinoOTA.h>
+
 #ifdef _Use_Wifi_Manager
-       #include <WiFiManager.h>
+#include <WiFiManager.h>
 #else
-       #include "Secrets.h"
-       String wifiSSID = SSID_RR;
-       String wifiPassword = PASS_RR; 
+#include "Secrets.h"
+String wifiSSID = SSID_RR;
+String wifiPassword = PASS_RR; 
 #endif
+
 #include <ESP8266WiFi.h>
-/*
-WiFiClient espClient;
-PubSubClient client(espClient); in MQTT now
-*/
 #include <Servo.h>
 #include <EEPROM.h>
 
 // adding FTP support!
 #include <ESP8266FtpServer.h>
 
-FtpServer ftpSrv;   //set #define FTP_DEBUG in ESP8266FtpServer.h to see ftp verbose on serial
+//set #define FTP_DEBUG in ESP8266FtpServer.h to see ftp verbose on serial
+FtpServer ftpSrv;
 //FTP support
 uint8_t wifiaddr;
 uint8_t ip0;
@@ -64,43 +64,42 @@ extern  uint32_t Motor_Setting_Update_Time;
 void ConnectionPrint() {
   Serial.println("");
   Serial.println(F("---------------------------Connected-----------------------"));
-  Serial.print (F(" Connected to SSID:"));
-  Serial.print(WiFi.SSID());
-  Serial.print(F("  IP:"));
+  Serial.print  (F(" Connected to SSID:"));
+  Serial.print  (WiFi.SSID());
+  Serial.print  (F("  IP:"));
   Serial.println(WiFi.localIP());
-  //Serial.println("-----------------------------------------------------------");      
- 
+  Serial.println("-----------------------------------------------------------"); 
 }
 
 
-
-
-
 void Status(){
-
   Serial.println();Serial.println();
   Serial.println(F("-----------------------------------------------------------"));
   Serial.println(F("             ESP8266 MQTT Rocnet Node with Sound    ")); 
   Serial.println(F("-----------------------------------------------------------"));
-  Serial.print(F(  "                    revision:"));
-  Serial.print(SW_REV); Serial.println();
+  Serial.print  (F(  "                    revision:"));
+  Serial.print  (SW_REV); Serial.println();
   Serial.println(F("-----------------------------------------------------------"));
-  WiFi.setOutputPower(0.0); //  0 sets transmit power to 0dbm to lower power consumption, but reduces usable range.. try 30 for extra range
+  //  0 sets transmit power to 0dbm to lower power consumption, but reduces usable range..
+  //    try 30 for extra range
+  WiFi.setOutputPower(0.0);
 
 #ifdef _Use_Wifi_Manager
    WiFiManager wifiManager;  // this  stores ssid and password invisibly  !!
   //reset settings - for testing
   //wifiManager.resetSettings();
   wifiManager.autoConnect("ROCNODE ESP AP");  //ap name (with no password) to be used if last ssid password not found
-#else    
-
+#else
   WiFi.mode(WIFI_STA);  //Alternate "normal" connection to wifi
   WiFi.setOutputPower(30);
   WiFi.begin(wifiSSID.c_str(), wifiPassword.c_str());
   
-  while (WiFi.status() != WL_CONNECTED) {delay(500);Serial.print(F("Trying to connect to {"));
-  Serial.print(wifiSSID.c_str());
-  Serial.println(F("} "));Serial.print(".");}
+  while (WiFi.status() != WL_CONNECTED) {
+  	delay(500);
+  	Serial.print(F("Trying to connect to {"));
+  	Serial.print(wifiSSID.c_str());
+  	Serial.println(F("} "));Serial.print(".");
+  }
  
 #endif
 
@@ -112,12 +111,18 @@ void Status(){
   subIPL = ipBroad[3];
   wifiaddr = ipBroad[3];
   ConnectionPrint();
-  ipBroad[3] = 255; //Set broadcast to local broadcast ip e.g. 192.168.0.255 // used in udp version of this program
+  ipBroad[3] = 255;
+  //Set broadcast to local broadcast ip e.g. 192.168.0.255
+  // used in udp version of this program
   //   ++++++++++ MQTT setup stuff   +++++++++++++++++++++
-  mosquitto[0] = ipBroad[0]; mosquitto[1] = ipBroad[1]; mosquitto[2] = ipBroad[2];
-  mosquitto[3] = RN[14];                //saved mosquitto address, where the broker is! saved as RN[14],
+  mosquitto[0] = ipBroad[0];
+  mosquitto[1] = ipBroad[1];
+  mosquitto[2] = ipBroad[2];
+  //saved mosquitto address, where the broker is! saved as RN[14],
+  mosquitto[3] = RN[14];
   #ifdef myBrokerSubip
-      mosquitto[3]= myBrokerSubip  //change to set  myBrokerSubip as your broker last ip address..(defined in secrets)..
+  //change to set  myBrokerSubip as your broker last ip address..(defined in secrets)..
+  mosquitto[3]= myBrokerSubip
   #endif
   Serial.print(F(" Mosquitto will first try to connect to:"));
   Serial.println(mosquitto);
@@ -135,22 +140,20 @@ void Status(){
 #endif
   
   Serial.println(F("------------------------- RocNet Node ---------------------"));
-  Serial.print(F("                   My ROCNET NODE ID:"));
+  Serial.print  (F("                   My ROCNET NODE ID:"));
   Serial.println(RocNodeID);
   //  ------------------ IF rfid -------------------------
 #ifdef _LocoDrivePort
   //++++++++++++++++++++Print Debug and Current setup information stuff    +++++++++++++++++++++++++++++
   Serial.println(F("---------------------- LOCO Setup   -----------------------"));
-  Serial.print(F(  "          Short 'Locomotive Address' is"));
-  Serial.println (MyLocoAddr);
+  Serial.print  (F(  "          Short 'Locomotive Address' is"));
+  Serial.println(MyLocoAddr);
   Serial.println();
   Serial.println(F("-------------------------- PORT Setup ---------------------"));
   Loco_motor_servo_demand = 90;
  digitalWrite (NodeMCUPinD[FRONTLight], 1);  //Turn off direction lights
  digitalWrite (NodeMCUPinD[BACKLight], 1); //Turn off direction lights
 #endif
-
-
 }
 
 void _SetupOTA(String StuffToAdd){
