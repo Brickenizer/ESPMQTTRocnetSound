@@ -1,6 +1,6 @@
-#include "Subroutines.h";
+#include "Subroutines.h"
 #include <Arduino.h> //needed 
-  #include "Directives.h";
+#include "Directives.h"
 
 
 #define RN_PACKET_NETID  0
@@ -11,8 +11,8 @@
 #define RN_PACKET_GROUP  5
 #define RN_PACKET_ACTION 6
 #define RN_PACKET_LEN    7
-#define UID_LEN         7
-//#include "Globals.h";
+#define UID_LEN          7
+
 extern uint8_t hrs;
 extern uint8_t mins;
 extern uint8_t secs;  
