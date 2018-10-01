@@ -182,7 +182,7 @@ void DebugMsgSend (const char* topic, const char* payload) { // use with mosquit
     char DebugMsgTemp[127];
   int cx;
  
-  #ifdef _LOCO_SERVO_Driven_Port
+  #ifdef _LocoDrivePort
   cx= sprintf ( DebugMsgTemp, " Node:%d Loco:%d(%s) Msg<%s>", RocNodeID, MyLocoAddr,Nickname, payload);
   #else
   cx= sprintf ( DebugMsgTemp, " Node:%d (%s) Msg:%s", RocNodeID, Nickname, payload);

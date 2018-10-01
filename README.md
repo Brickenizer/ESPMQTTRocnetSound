@@ -91,8 +91,8 @@ CV[111]=127; // volume for Brake Squeal
 
 
 ## "LOCO" interface
- The code is for use as a "LOCO" or mobile node when the define  _LOCO_SERVO_Driven_Port is set 
- The "#define _LOCO_SERVO_Driven_Port 1" defines that port D1 will be a (servo controlled or PWM controlled) motor driver for the locomotive. 
+ The code is for use as a "LOCO" or mobile node when the define  _LocoDrivePort is set 
+ The "#define _LocoDrivePort 1" defines that port D1 will be a (servo controlled or PWM controlled) motor driver for the locomotive. 
  Ports D5 and D2 default as Front and Back Lights.
  Port D0 is a signal LED to show operation and flashes during transmissions etc.
  If using a PWM motor drive, a second port "_LocoPWMDirPort" needs to be define. I use D3 for this in my hardware.

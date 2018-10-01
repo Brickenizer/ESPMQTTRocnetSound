@@ -138,7 +138,7 @@ void Status(){
   Serial.print(F("                   My ROCNET NODE ID:"));
   Serial.println(RocNodeID);
   //  ------------------ IF rfid -------------------------
-#ifdef _LOCO_SERVO_Driven_Port
+#ifdef _LocoDrivePort
   //++++++++++++++++++++Print Debug and Current setup information stuff    +++++++++++++++++++++++++++++
   Serial.println(F("---------------------- LOCO Setup   -----------------------"));
   Serial.print(F(  "          Short 'Locomotive Address' is"));
@@ -159,7 +159,7 @@ void _SetupOTA(String StuffToAdd){
   // ArduinoOTA.setPort(8266);
   // Hostname defaults to esp8266-[ChipID]
 
- #ifdef _LOCO_SERVO_Driven_Port 
+ #ifdef _LocoDrivePort 
   Name="RN LOCO(";
   #else
   Name="RN STAT(";
@@ -237,10 +237,10 @@ void setup() {
   ReadEEPROM();     //set the RN and CV registers
 
   
-  #ifdef _LOCO_SERVO_Driven_Port 
-   Pi03_Setting_options[_LOCO_SERVO_Driven_Port] = 32 + 10; // KEEP this i/o as a "SERVO" output regardless, 10= delay to use for servo changes = 100ms rate ;
+  #if defined _LocoDrivePort
+   Pi03_Setting_options[_LocoDrivePort] = 32 + 10; // KEEP this i/o as a "SERVO" output regardless, 10= delay to use for servo changes = 100ms rate ;
   #ifdef _LocoPWMDirPort
-   Pi03_Setting_options[_LOCO_SERVO_Driven_Port] = 128 + 10; // Set this i/o as a "PWM" output regardless, 10= delay to use for servo changes = 100ms rate ;
+   Pi03_Setting_options[_LocoDrivePort] = 128 + 10; // Set this i/o as a "PWM" output regardless, 10= delay to use for servo changes = 100ms rate ;
    #endif  
   #endif
   PortSetupReport();  //make any port direction changes.

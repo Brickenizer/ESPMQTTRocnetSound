@@ -212,33 +212,35 @@ bool TimeToChuff(uint32_t TimeNow){
 extern bool POWERON;
 void Chuff (String ChuffChoice){
   String Chuff;
- // if (ChuffPeriod>=60){ChuffChoice="/ch";} // test for switching sound effects with speed this works, but my fast sound clips need work 
- // else{ChuffChoice="/CHF_";} 
+  // if (ChuffPeriod>=60){ChuffChoice="/ch";} // test for switching sound effects with speed this works, but my fast sound clips need work 
+  // else{ChuffChoice="/CHF_";} 
   
   ChuffType=ChuffChoice;
+  
+  
+  //  if (wav[0]>isRunning()) {wav[0]->stop();  delay(1);
+  //                          #ifdef _AudioDebug
+  //                            // Serial.print-wav -Truncated\n");
+  //                             #endif
+  //                         }// truncate play
+  LastChuff=millis();
+  
+#if defined _LocoDrivePort
 
-  
- //  if (wav[0]>isRunning()) {wav[0]->stop();  delay(1);
- //                          #ifdef _AudioDebug
- //                            // Serial.print-wav -Truncated\n");
- //                             #endif
- //                         }// truncate play
-   LastChuff=millis();
-  
-   #ifdef _LOCO_SERVO_Driven_Port
-   #ifdef SteamOutputPin  //steamoutputpin stuff  here for one puff per chuff 
-   SteamOnStarted=millis(); digitalWrite (NodeMCUPinD[SteamOutputPin],HIGH); //steamoutputpin stuff  here for one puff per chuff 
-   #endif
-    if((bitRead(SoundEffect_Request[2],0)==1)&& (POWERON)){ //F9 is chuffs on
-   switch (ChuffCycle){ 
-                              case 0:Chuff=ChuffType+"1.wav";BeginPlay(0,Chuff.c_str(),CV[110]);ChuffCycle=1;
-                              //Stuff here only for strobe use, one per rev to help set chuff rate
-                                  //SteamOnStarted=millis(); digitalWrite (NodeMCUPinD[SteamOutputPin],HIGH);
-                              break;
-                              case 1:Chuff=ChuffType+"2.wav";BeginPlay(0,Chuff.c_str(),CV[110]);ChuffCycle=2;break;
-                              case 2:Chuff=ChuffType+"3.wav";BeginPlay(0,Chuff.c_str(),CV[110]);ChuffCycle=3;break;
-                              case 3:Chuff=ChuffType+"4.wav";BeginPlay(0,Chuff.c_str(),CV[110]);ChuffCycle=0;break;
-}}
+#ifdef SteamOutputPin  //steamoutputpin stuff  here for one puff per chuff 
+  SteamOnStarted=millis(); digitalWrite (NodeMCUPinD[SteamOutputPin],HIGH); //steamoutputpin stuff  here for one puff per chuff 
+#endif
+
+  if((bitRead(SoundEffect_Request[2],0)==1)&& (POWERON)){ //F9 is chuffs on
+    switch (ChuffCycle){ 
+    case 0:Chuff=ChuffType+"1.wav";BeginPlay(0,Chuff.c_str(),CV[110]);ChuffCycle=1;
+      //Stuff here only for strobe use, one per rev to help set chuff rate
+      //SteamOnStarted=millis(); digitalWrite (NodeMCUPinD[SteamOutputPin],HIGH);
+      break;
+    case 1:Chuff=ChuffType+"2.wav";BeginPlay(0,Chuff.c_str(),CV[110]);ChuffCycle=2;break;
+    case 2:Chuff=ChuffType+"3.wav";BeginPlay(0,Chuff.c_str(),CV[110]);ChuffCycle=3;break;
+    case 3:Chuff=ChuffType+"4.wav";BeginPlay(0,Chuff.c_str(),CV[110]);ChuffCycle=0;break;
+    }}
 #endif
 }
 

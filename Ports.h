@@ -23,7 +23,7 @@ int SDemand[12];
 unsigned long ServoOff_Delay_Until[12];
 
 
-//Servo Loco_LOCO_SERVO_Driven_Port;  
+//Servo LocoDrivePort;  
 // create servo object to control a servo  
 // servo 0 in ver107 on to be loco, but connected on pin D1. 
 Servo myservo1;  // create servo object to control a servo
@@ -68,7 +68,7 @@ void SERVOS(void);
 
 
 void SetMotorSpeed(uint8_t SpeedDemand,uint8_t dirf){ // lc dirf to avoid confusion with DIRF ?
-#ifdef _LOCO_SERVO_Driven_Port 
+#ifdef _LocoDrivePort 
 //int servodemand;
 bool Dir;
           Speed_demand = SpeedDemand;
@@ -297,12 +297,12 @@ return SpeedDemand;
 
 void ImmediateStop(void){
   uint16_t Speed;
-    #ifdef _LOCO_SERVO_Driven_Port 
+    #ifdef _LocoDrivePort 
    #ifndef _LocoPWMDirPort
-               Speed= SetLocoMotorRC(_LOCO_SERVO_Driven_Port,0,0);
+               Speed= SetLocoMotorRC(_LocoDrivePort,0,0);
    #endif
    #ifdef _LocoPWMDirPort
-               Speed=SetLocoMotorPWM(_LOCO_SERVO_Driven_Port,0,0);// 
+               Speed=SetLocoMotorPWM(_LocoDrivePort,0,0);// 
    #endif
    #endif
    Serial.print("Speed = ");
@@ -316,9 +316,9 @@ void DoLocoMotor(void){  // uses Last_Speed_demand and Speed_demand to set servo
   uint16_t SPEEDSET;
   bool Dir;
 
-#ifdef _LOCO_SERVO_Driven_Port
+#ifdef _LocoDrivePort
    Dir=bitRead(DIRF, 5 );
-   ServoOff_Delay_Until[_LOCO_SERVO_Driven_Port] = millis() + 10000;  // reset the servo off delay for the motor...
+   ServoOff_Delay_Until[_LocoDrivePort] = millis() + 10000;  // reset the servo off delay for the motor...
    // POWERON=true; //temporary whilst sorting code 
    if (POWERON == false) { // Track power off, stop the motor, zero the motor servo immediately
     ImmediateStop();
@@ -358,12 +358,12 @@ SP=40;
 TI=CV[65];
 if((Last_Speed_demand==0)&&(Speed_demand!=0)){// give a quick kick pulse to ensure starting from stopped. This works well with pwm, but not as well with servo
   #ifndef _LocoPWMDirPort
-                SP=SetLocoMotorRC(_LOCO_SERVO_Driven_Port,SP,Dir);
+                SP=SetLocoMotorRC(_LocoDrivePort,SP,Dir);
                 delay(TI*2); //wait for this long before going to "correct" speed, longer for servo than pwm
                          //  DebugSprintfMsgSend( sprintf ( DebugMsg, "Kick start motor speed%d Time:%dms  Dir%d",SP,TI*2,Dir));
             #endif
 #ifdef _LocoPWMDirPort
-                SP=SetLocoMotorPWM(_LOCO_SERVO_Driven_Port,SP,Dir);// 
+                SP=SetLocoMotorPWM(_LocoDrivePort,SP,Dir);// 
                delay(TI); //wait for this long before going to "correct" speed
                        //      DebugSprintfMsgSend( sprintf ( DebugMsg, "Kick start motor speed%d Time:%dms  Dir%d",SP,TI,Dir));
 #endif
@@ -372,10 +372,10 @@ if((Last_Speed_demand==0)&&(Speed_demand!=0)){// give a quick kick pulse to ensu
 uint16_t currentspeed;
 // do the motor drivers....        
 #ifndef _LocoPWMDirPort
-               currentspeed = SetLocoMotorRC(_LOCO_SERVO_Driven_Port,SPEEDSET,Dir);
+               currentspeed = SetLocoMotorRC(_LocoDrivePort,SPEEDSET,Dir);
 #endif
 #ifdef _LocoPWMDirPort
-               currentspeed = SetLocoMotorPWM(_LOCO_SERVO_Driven_Port,SPEEDSET,Dir);// 
+               currentspeed = SetLocoMotorPWM(_LocoDrivePort,SPEEDSET,Dir);// 
 #endif
 
 #ifdef _Audio      // sets up chuff period here so it works with acceleration etc
@@ -451,8 +451,8 @@ void PortMode(int i) {
   Serial.print (" Port :");
   Serial.print (i);
   switch (i) {
-#ifdef _LOCO_SERVO_Driven_Port
-    case _LOCO_SERVO_Driven_Port:
+#ifdef _LocoDrivePort
+    case _LocoDrivePort:
     Serial.print(F(" LOCO MOTOR "));
     Pi02_Port_Settings_D[i] = 0;
     Pi03_Setting_options[i] = 42;
@@ -480,7 +480,7 @@ void PortMode(int i) {
     hardset =true;
     break;
                       
-#ifdef _LOCO_SERVO_Driven_Port  
+#ifdef _LocoDrivePort  
     case FRONTLight:
     Serial.print (F(" is FRONTLight  Output "));
     pinMode(NodeMCUPinD[FRONTLight], OUTPUT);
@@ -652,7 +652,7 @@ void DetachServo(int i) {
    switch (i) {
     case -1: {
         Serial.println(" ---- Switching OFF ALL Servos---");
-      //  Loco_LOCO_SERVO_Driven_Port.detach();
+      //  Loco_LocoDrivePort.detach();
         myservo1.detach();
         myservo2.detach();
         myservo3.detach();
@@ -730,10 +730,10 @@ void SetServo( int i, uint16_t value) { // uses 0-180
     ServoLastPos[i]=value;
 
 //#ifdef _Audio      // sets chuff period here?
-// #ifdef _LOCO_SERVO_Driven_Port // loco motor 
-//   if ((i==_LOCO_SERVO_Driven_Port)) {
+// #ifdef _LocoDrivePort // loco motor 
+//   if ((i==_LocoDrivePort)) {
 //          SetChuffPeriodFromServoPos(value); not needed anymore, set from speed...in loco motor 
-//                  }  // i==_LOCO_SERVO_Driven_Port
+//                  }  // i==_LocoDrivePort
 //  #endif // is loco      
 //#endif //is audio
     switch (i) {
@@ -823,9 +823,9 @@ void SERVOS() {              // attaches and detaches servos, accelerates to dem
   uint32_t LocalTimer;
   //int MotorSpeed;
   LocalTimer=millis();
-  for (int i = 1 ; i <= 8; i++) { //up to 8 servos.. originally,  _LOCO_SERVO_Driven_Port was just another srvo used here but with different settings  
-#ifdef _LOCO_SERVO_Driven_Port    
-    if (i!=_LOCO_SERVO_Driven_Port){ //not for loco 
+  for (int i = 1 ; i <= 8; i++) { //up to 8 servos.. originally,  _LocoDrivePort was just another srvo used here but with different settings  
+#ifdef _LocoDrivePort    
+    if (i!=_LocoDrivePort){ //not for loco 
 #endif
     if ((Pi03_Setting_options[i] & 32) == 32) { //only if this port is a "servo"... To address a channel instead of a port the port type servo must be set on the interface tab of switches and outputs
         if (millis() >= (Pi03_Setting_LastUpdated[i] + (Pi03_Setting_options[i] & 15) * 10)) { // do update only at the required delay update rate
@@ -852,7 +852,7 @@ void SERVOS() {              // attaches and detaches servos, accelerates to dem
 //#endif
                               }
        else {    // steps not == zero
-       // if (i!=_LOCO_SERVO_Driven_Port){ //not for loco 
+       // if (i!=_LocoDrivePort){ //not for loco 
         steps=1; // force steps to 1 to prevent a strange servo behaviour where the servo jitters unstably around the end position.. which does not affect the RC controller for some reason 
        // }
             if (abs(offset) >= abs(steps)) { offset = (offset * steps) / abs(offset);  //offset is now either the error or steps, whichever is less
@@ -863,7 +863,7 @@ void SERVOS() {              // attaches and detaches servos, accelerates to dem
             }
 #ifdef _SERVO_DEBUG
  //   NOTE Sending serial messages adds about 200ms delay in the loop !.
- //if (i!=_LOCO_SERVO_Driven_Port){ //not for loco 
+ //if (i!=_LocoDrivePort){ //not for loco 
 //    DebugSprintfMsgSend( sprintf ( DebugMsg, "Moving Servo[%d] from current position(%d) to demand:{%d}degrees by moving:%d steps ",i,ServoPositionNow,SDemand[i],offset));
  //}
 #endif
@@ -873,7 +873,7 @@ void SERVOS() {              // attaches and detaches servos, accelerates to dem
         } // offset != 0
       } // time to do an update
     } //if servo
-#ifdef _LOCO_SERVO_Driven_Port    
+#ifdef _LocoDrivePort    
     } //if not loco
 #endif
   } // end i 1..8 loop

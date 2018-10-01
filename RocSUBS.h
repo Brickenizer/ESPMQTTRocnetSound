@@ -82,7 +82,7 @@ Pi03_Setting_LastUpdated[i]=0;
   }
 
   
-#ifndef _LOCO_SERVO_Driven_Port 
+#ifndef _LocoDrivePort 
 //{  
  // a set of defaults derived from a saved emprom set...for a station
  // This set sets 1-4 as pwm outputs 
@@ -230,7 +230,7 @@ Pi03_Setting_LastUpdated[i]=0;
     
 // end of defaults for station
 
-#ifdef _LOCO_SERVO_Driven_Port
+#ifdef _LocoDrivePort
 
 // This set is for a Loco (dcc address 3) with Audio
  // ------Current EEPROM Settings----------
@@ -1311,7 +1311,7 @@ void ROC_MOBILE() { // group 2
         // set Velocity, direction , lights
         Message_Decoded = true; // we understand these even if they are not for us
         if (ROC_recipient == MyLocoAddr) {
-#ifdef _LOCO_SERVO_Driven_Port
+#ifdef _LocoDrivePort
           //data for me, do it!
         
           Serial.print (" Set Speed ");
@@ -1401,7 +1401,7 @@ void ROC_NODE() { // stationary decoders GROUP 3
           }
           // Identify... data is:  class manuID  versionH  versionL  nr I/O  subipH  subipL
 NodeClass= 0x01; //class? = io?"bit 0= accessory" bit 1= dcc Bit 3=RFID FF= Accessory DCC RFID
-#ifdef _LOCO_SERVO_Driven_Port
+#ifdef _LocoDrivePort
 NodeClass= 0x02;
 #endif
           

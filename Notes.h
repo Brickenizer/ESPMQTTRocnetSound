@@ -37,7 +37,7 @@ It works, but only when the loco is very slow. The response of the tag system is
 
  ##LOCO interface
   
-  The LOCO interface now expects a brushed RC servo motor interface on the pin defined by _LOCO_SERVO_Driven_Port
+  The LOCO interface now expects a brushed RC servo motor interface on the pin defined by _LocoDrivePort
   In this configuration, FRONTLight AND BACKLight operate on defined pins (defined in the .ino)
 
    The code includes proper dcc interface for CV values, and expects to be "programmed using the POM".
@@ -92,7 +92,7 @@ version 150 :Complete modification to where things are stored and defined...
     Servo timing now works properly
     but I added a #define so debug messages in servo routines can be shown if needed again 
     Added a #define to switch off WIFImanager, so a fixed SSID and Password can be set up (Password etc in secrets.h)
-    If you wish to use this as a loco (mobile) decoder, uncomment the #define _LOCO_SERVO_Driven_Port 1 
+    If you wish to use this as a loco (mobile) decoder, uncomment the #define _LocoDrivePort 1 
     and (in this example) use port D1 to drive a servo type motor controller.
     Ports 2 and 3 default to front and back lights.
     
